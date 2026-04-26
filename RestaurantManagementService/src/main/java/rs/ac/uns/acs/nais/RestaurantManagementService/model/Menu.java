@@ -18,7 +18,7 @@ public class Menu {
     @Id @GeneratedValue
     private Long id;
 
-    private Integer menuId;
+    private Integer menuId;  // ovo koristimo da bi pronasli sve verzije istog menija
     private String name;
     private Integer version;
     private String description;
