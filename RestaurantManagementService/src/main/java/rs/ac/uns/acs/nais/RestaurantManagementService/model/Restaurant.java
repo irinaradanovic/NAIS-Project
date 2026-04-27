@@ -1,10 +1,12 @@
 package rs.ac.uns.acs.nais.RestaurantManagementService.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.neo4j.core.schema.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -15,14 +17,15 @@ import java.util.List;
 public class Restaurant {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(GeneratedValue.UUIDGenerator.class)
+    private String id;
 
     private String name;
     private String address;
     private String contact;
 
     @Relationship(type = "HAS_MENU", direction = Relationship.Direction.OUTGOING)
-    private List<HasMenuRel> menus;  // ide preko relacije sa properties
+    @JsonIgnore
+    private List<HasMenuRel> menus = new ArrayList<>();  // ide preko relacije sa properties
 
 }

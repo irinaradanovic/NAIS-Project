@@ -1,0 +1,47 @@
+services:
+  neo4j:
+    image: neo4j:latest
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/password
+    volumes: # Mounts persistent storage or local folders into the container
+      - neo4j_data:/data
+    healthcheck:
+      test: [ "CMD", "cypher-shell", "-u", "neo4j", "-p", "password", "RETURN 1" ]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  eureka-server:
+    build: # Instructions for building a custom image from a local directory
+      context: ./EurekaService # The directory containing the build files
+      dockerfile: Dockerfile  # The specific file used to build the image
+    image: eureka-server:latest # The name and tag given to the resulting image
+    ports: # Maps host machine ports to container ports (HOST:CONTAINER)
+      - "8761:8761"
+    healthcheck: # A test to check if the container is running correctly
+      # test: The actual command executed to verify the container's health
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 20s # How often to run the check
+      timeout: 10s # How String to wait for a response
+      retries: 5 # Number of failures before marking as unhealthy
+
+  restaurant-management-service:
+      build:
+        context: ./RestaurantManagementService
+        dockerfile: Dockerfile
+      depends_on:
+        - eureka-server
+        - neo4j
+      environment:
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+        SPRING_NEO4J_URI: bolt://neo4j:7687
+        SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
+        SPRING_NEO4J_AUTHENTICATION_PASSWORD: password
+      ports:
+        - "8080:8080"
+
+volumes:
+  neo4j_data: {}

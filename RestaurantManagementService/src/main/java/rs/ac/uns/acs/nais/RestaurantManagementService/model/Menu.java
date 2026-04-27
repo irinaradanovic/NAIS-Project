@@ -1,5 +1,6 @@
 package rs.ac.uns.acs.nais.RestaurantManagementService.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,7 +8,9 @@ import org.springframework.data.neo4j.core.schema.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Node
 @Data
@@ -15,8 +18,8 @@ import java.util.List;
 @AllArgsConstructor
 public class Menu {
 
-    @Id @GeneratedValue
-    private Long id;
+    @Id @GeneratedValue(GeneratedValue.UUIDGenerator.class)
+    private String id;
 
     private Integer menuId;  // ovo koristimo da bi pronasli sve verzije istog menija
     private String name;
@@ -38,6 +41,7 @@ public class Menu {
     private LocalDate deactivationDate; // kada se verzija gasi, ako je null onda je verzija aktivna
 
     @Relationship(type = "HAS_CATEGORY", direction = Relationship.Direction.OUTGOING)
-    private List<MenuCategoryRel> categories;  // svaki meni ima neke svoje kategorije
+    @JsonIgnore
+    private List<MenuCategoryRel> categories = new ArrayList<>();;  // svaki meni ima neke svoje kategorije
 
 }

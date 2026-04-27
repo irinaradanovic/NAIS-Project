@@ -143,7 +143,7 @@ CREATE (gondola_mU_cat2)-[:INCLUDES_ITEM {discount: 0.15}]->(gondola_mU_i3)
 
 // DRUGI RESTORAN - KFC
 
-CREATE (r2:Restaurant {
+CREATE (kfc:Restaurant {
     name: 'KFC Novi Sad',
     address: 'Bulevar Oslobođenja 119',
     contact: '021/222-3033'
@@ -173,7 +173,7 @@ CREATE (kfc_m4:Menu {
 CREATE (kfc_m5:Menu {
     menuId: 505, version: 1, name: 'Dorucak Meni',
     description: 'KFC Dorucak', type: 'TIME',
-    startTime: time('08:00:00'), endTime: time('12:00:00'),
+    startTime: localtime('08:00:00'), endTime: localtime('12:00:00'),
     activationDate: date('2025-05-01')
 })
 

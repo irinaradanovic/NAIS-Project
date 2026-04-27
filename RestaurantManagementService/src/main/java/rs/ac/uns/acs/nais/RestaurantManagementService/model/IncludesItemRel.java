@@ -14,7 +14,7 @@ public class IncludesItemRel {
     @Id @GeneratedValue
     private Long id;
 
-    private LocalDate discount;
+    private Double discount;
     private LocalDate discountFrom;
     private LocalDate discountTo;
 

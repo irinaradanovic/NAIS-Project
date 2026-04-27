@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.acs.nais.RestaurantManagementService.dto.RestaurantDTO;
+import rs.ac.uns.acs.nais.RestaurantManagementService.model.Menu;
 import rs.ac.uns.acs.nais.RestaurantManagementService.model.Restaurant;
 import rs.ac.uns.acs.nais.RestaurantManagementService.repository.RestaurantRepository;
 
@@ -29,7 +30,7 @@ public class RestaurantService {
         return restaurantRepository.findAll();
     }
 
-    public Restaurant getById(Long id) {
+    public Restaurant getById(String id) {
         return restaurantRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Restaurant with id " + id + " not found"));
     }
@@ -40,7 +41,7 @@ public class RestaurantService {
                 .orElseThrow(() -> new RuntimeException("Restaurant with name " + name + " not found"));
     }
 
-    public Restaurant update(Long id, RestaurantDTO updated) {
+    public Restaurant update(String id, RestaurantDTO updated) {
         Restaurant existing = getById(id);
 
         // ako se nista ne promeni, ostavi staro
@@ -56,11 +57,30 @@ public class RestaurantService {
         return restaurantRepository.save(existing);
     }
 
-    public void delete(Long id) {
+    public void delete(String id) {
         Optional<Restaurant> rest = restaurantRepository.findById(id);
         if (rest.isEmpty()) {
             throw new RuntimeException("Restaurant with id " + id + " not found");
         }
         restaurantRepository.deleteById(id);
+    }
+
+
+    // HAS_MENU grana
+
+    public void addMenu(String restaurantId, String menuId, Boolean active) {
+        restaurantRepository.addMenuToRestaurant(restaurantId, menuId, active);
+    }
+
+    public List<Menu> getActiveMenusByRestaurantId(String restaurantId){
+        return restaurantRepository.findActiveMenusByRestaurantId(restaurantId);
+    }
+
+    public void updateMenuActive(String restaurantId, String menuId, Boolean active) {
+        restaurantRepository.updateMenuActiveStatus(restaurantId, menuId, active);
+    }
+
+    public void removeMenu(String restaurantId, String menuId) {
+        restaurantRepository.removeMenuFromRestaurant(restaurantId, menuId);
     }
 }

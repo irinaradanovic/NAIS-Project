@@ -13,8 +13,8 @@ import org.springframework.data.neo4j.core.schema.Node;
 @AllArgsConstructor
 public class MenuItem {
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(GeneratedValue.UUIDGenerator.class)
+    private String id;
     private String name;
     private Double price; // u RSD
     private Integer calories;

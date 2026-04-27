@@ -4,13 +4,16 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.acs.nais.RestaurantManagementService.dto.MenuDTO;
+import rs.ac.uns.acs.nais.RestaurantManagementService.model.Category;
 import rs.ac.uns.acs.nais.RestaurantManagementService.model.Menu;
+import rs.ac.uns.acs.nais.RestaurantManagementService.model.MenuCategoryRel;
 import rs.ac.uns.acs.nais.RestaurantManagementService.model.MenuType;
 import rs.ac.uns.acs.nais.RestaurantManagementService.repository.MenuRepository;
 import rs.ac.uns.acs.nais.RestaurantManagementService.repository.RestaurantRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -23,20 +26,29 @@ public class MenuService {
     @Autowired
     private RestaurantRepository restaurantRepository;
 
-    public Menu create(MenuDTO dto) {  // za pravljenje inicijalnog menija, sa samo jednom verzijom
-        Menu menu  = mapDtoToEntity(dto);
+    public Menu create(MenuDTO dto, String restaurantId) {  // za pravljenje inicijalnog menija, sa samo jednom verzijom
+        Menu menu = new Menu();
+       if (dto.getMenuId() == null){
+            Integer nextMenuId = menuRepository.findMaxMenuId() + 1;
+            menu.setMenuId(nextMenuId);
+        }else{
+            menu.setMenuId(dto.getMenuId());
+        }
+        mapDtoToEntity(dto, menu);
         menu.setVersion(1);
         menu.setActivationDate(LocalDate.now());
 
-        // dodati menu u restaurant
-        return menuRepository.save(menu);
+        Menu saved = menuRepository.save(menu);
+
+        restaurantRepository.addMenuToRestaurant(restaurantId, saved.getId(), Boolean.TRUE); // dodaj meni odmah u odgovarajuci restoran
+        return saved;
     }
 
     public List<Menu> getAll() {
         return menuRepository.findAll();
     }
 
-    public Menu getById(Long id) {
+    public Menu getById(String id) {
         return menuRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Menu with id " + id + " not found"));
     }
@@ -52,26 +64,13 @@ public class MenuService {
                 .orElseThrow(() -> new RuntimeException("Meni with id " + menuId + " not found"));
     }
 
-    public List<Menu> findByType(MenuType type) {
-        return menuRepository.findByType(type);
-    }
-
-    public Menu update(Long id, MenuDTO dto) {
+    public Menu update(String id, MenuDTO dto) {
         Menu existing = getById(id);
+        String restaurantId = restaurantRepository.findRestaurantByMenuId(id).getId();
         // ako su promene velike, pravi novu verziju
         if (isMajorChange(existing, dto)) {
-            existing.setDeactivationDate(LocalDate.now());  // deaktiviraj trenutnu verziju
-            menuRepository.save(existing);
-
-            // kreiraj novu verziju i aktiviraj je
-            // TREBA IZMENITI ACTIVE STATUS NA GRANI IZMEDJU RESTORANA I MENIJA
-            Menu newVersion = mapDtoToEntity(dto);
-            newVersion.setMenuId(existing.getMenuId()); // zadržava isti  menuId
-            newVersion.setVersion(existing.getVersion() + 1); // povecava verziju
-            newVersion.setActivationDate(LocalDate.now());
-            return menuRepository.save(newVersion);
-
-            // TREBA KOPIRATI KATEGORIJE NA NOVU VERZIJU
+            mapDtoToEntity(dto, existing);
+            return createNewVersion(existing, restaurantId);
         } else {
             // obican update menija, npr samo opis, ne pravi novu verziju
             if (dto.getDescription() != null) existing.setDescription(dto.getDescription());
@@ -82,7 +81,7 @@ public class MenuService {
 
     // IMPLEMENTIRATI ROLLBACK NA NEKU VERZIJU
 
-    public void delete(Long id) {
+    public void delete(String id) {
         Optional<Menu> m = menuRepository.findById(id);
         if(m.isEmpty()){
             throw new RuntimeException("Menu with id " + id + " not found");
@@ -92,6 +91,71 @@ public class MenuService {
 
 
 
+
+    // HAS_CATEGORY grana
+
+    public void addCategory(String menuId, String categoryId, Integer order) {
+        Menu existing = getById(menuId);
+        // kada napravimo novu kategoriju u meniju, pravi novu verziju menija koja ce imati tu kategoriju
+        Menu newVersion = createNewVersion(existing, restaurantRepository.findRestaurantByMenuId(menuId).getId());
+        menuRepository.addCategoryToMenu(newVersion.getId(), categoryId, order);
+    }
+
+    public List<Category> getCategoriesByMenuId(String menuId) {
+        return menuRepository.findCategoriesByMenuId(menuId);
+    }
+
+    public void updateCategoryOrder(String menuId, String categoryId, Integer order) {
+        menuRepository.updateCategoryOrder(menuId, categoryId, order);
+    }
+
+    public void removeCategory(String menuId, String categoryId) {
+        Menu existing = getById(menuId);
+        // kada izbacimo neku kategoriju iz menija, pravi novu verziju menija koja nece imati tu kategoriju
+        Menu newVersion = createNewVersion(existing, restaurantRepository.findRestaurantByMenuId(menuId).getId());
+        menuRepository.removeCategoryFromMenu(newVersion.getId(), categoryId);
+    }
+
+
+    public Menu createNewVersion(Menu existing, String restaurantId) {
+        // ucitaj postojeci meni sa relacijama sa kategorijama
+        Menu existingWithRels = getById(existing.getId());
+
+        // deaktiviraj staru verziju
+        existingWithRels.setDeactivationDate(LocalDate.now());
+        menuRepository.save(existingWithRels);
+
+        // kreiraj novu verziju sa istim podacima
+        Menu newVersion = new Menu();
+        newVersion.setMenuId(existingWithRels.getMenuId());   // isti menuId
+        newVersion.setName(existingWithRels.getName());
+        newVersion.setDescription(existingWithRels.getDescription());
+        newVersion.setType(existingWithRels.getType());
+        newVersion.setStartTime(existingWithRels.getStartTime());
+        newVersion.setEndTime(existingWithRels.getEndTime());
+        newVersion.setStartSeasonDate(existingWithRels.getStartSeasonDate());
+        newVersion.setEndSeasonDate(existingWithRels.getEndSeasonDate());
+        newVersion.setVersion(existingWithRels.getVersion() + 1);  // povecaj verziju
+        newVersion.setActivationDate(LocalDate.now());  // ova je sad aktivna, nema deactivation date
+        Menu saved = menuRepository.save(newVersion);
+
+        //  kopiraj HAS_CATEGORY grane sa orderom iz postojecih relacija
+        if (existingWithRels.getCategories() != null) {
+            for (MenuCategoryRel rel : existingWithRels.getCategories()) {
+                menuRepository.addCategoryToMenu(
+                        saved.getId(),
+                        rel.getCategory().getId(),
+                        rel.getOrder()
+                );
+            }
+        }
+
+        // postavi active=false na staroj HAS_MENU grani, dodaj novu aktivnu
+        restaurantRepository.setMenuInactive(restaurantId, existingWithRels.getId());
+        restaurantRepository.addMenuToRestaurant(restaurantId, saved.getId(), Boolean.TRUE);
+
+        return saved;
+    }
 
     // POMOCNE FUNKCIJE
 
@@ -105,8 +169,8 @@ public class MenuService {
         return false;
     }
 
-    private Menu mapDtoToEntity(MenuDTO dto) {
-        Menu menu = new Menu();
+    private void mapDtoToEntity(MenuDTO dto, Menu menu) {
+        //Menu menu = new Menu();
         if (dto.getMenuId() != null) menu.setMenuId(dto.getMenuId());
         if (dto.getName() != null) menu.setName(dto.getName());
         if (dto.getDescription() != null) menu.setDescription(dto.getDescription());
@@ -115,7 +179,7 @@ public class MenuService {
         if (dto.getEndTime() != null) menu.setEndTime(dto.getEndTime());
         if (dto.getStartSeasonDate() != null) menu.setStartSeasonDate(dto.getStartSeasonDate());
         if (dto.getEndSeasonDate() != null) menu.setEndSeasonDate(dto.getEndSeasonDate());
-        return menu;
+        //return menu;
     }
 
 }

@@ -31,35 +31,19 @@ public class MenuItemController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MenuItem> findById(@PathVariable Long id) {
+    public ResponseEntity<MenuItem> findById(@PathVariable String id) {
         return ResponseEntity.ok(menuItemService.getById(id));
     }
 
-    @GetMapping("/calories")
-    public ResponseEntity<List<MenuItem>> findByMaxCalories(@RequestParam Integer max) {
-        return ResponseEntity.ok(menuItemService.findByMaxCalories(max));
-    }
-
-    @GetMapping("/price")
-    public ResponseEntity<List<MenuItem>> findByPriceRange(
-            @RequestParam Double min,
-            @RequestParam Double max) {
-        return ResponseEntity.ok(menuItemService.findByPriceRange(min, max));
-    }
-
-    @GetMapping("/prep-time")
-    public ResponseEntity<List<MenuItem>> findByMaxPrepTime(@RequestParam Integer max) {
-        return ResponseEntity.ok(menuItemService.findByMaxPrepTime(max));
-    }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MenuItem> update(@PathVariable Long id, @RequestBody MenuItemDTO updated) {
+    public ResponseEntity<MenuItem> update(@PathVariable String id, @RequestBody MenuItemDTO updated) {
         return ResponseEntity.ok(menuItemService.update(id, updated));
     }
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable String id) {
         menuItemService.delete(id);
         return ResponseEntity.noContent().build();
     }
