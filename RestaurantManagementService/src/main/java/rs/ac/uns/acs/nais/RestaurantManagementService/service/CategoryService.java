@@ -12,6 +12,7 @@ import rs.ac.uns.acs.nais.RestaurantManagementService.repository.RestaurantRepos
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -37,19 +38,19 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
-    public Category getById(String id) {
+    public Category getById(UUID id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category with id " + id + " not found"));
     }
 
-    public Category update(String id, CategoryDTO updated) {
+    public Category update(UUID id, CategoryDTO updated) {
         Category c = getById(id);
         if(updated.getName() != null){
             c.setName(updated.getName());
         }
         return categoryRepository.save(c);
     }
-    public void delete(String id) {
+    public void delete(UUID id) {
         Category category = getById(id);
         if (category == null) {
             throw new RuntimeException("Category with id " + id + " not found");
@@ -59,7 +60,7 @@ public class CategoryService {
 
     // INCLUDES_ITEMS  grana
 
-    public void addItem(String categoryId, String itemId, Double discount, LocalDate from, LocalDate to) {
+    public void addItem(UUID categoryId, UUID itemId, Double discount, LocalDate from, LocalDate to) {
         categoryRepository.addItemToCategory(categoryId, itemId, discount, from, to);
         // napravi novu verziju svih aktivnih menija koji sadrze ovu kategoriju
         List<Menu> affectedMenus = categoryRepository.findMenusByCategoryId(categoryId);
@@ -70,15 +71,15 @@ public class CategoryService {
         }
     }
 
-    public List<MenuItem> getItemsByCategoryId(String categoryId) {
+    public List<MenuItem> getItemsByCategoryId(UUID categoryId) {
         return categoryRepository.findItemsByCategoryId(categoryId);
     }
 
-    public void updateDiscount(String categoryId, String itemId, Double discount, LocalDate from, LocalDate to) {
+    public void updateDiscount(UUID categoryId, UUID itemId, Double discount, LocalDate from, LocalDate to) {
         categoryRepository.updateItemDiscount(categoryId, itemId, discount, from, to);
     }
 
-    public void removeItem(String categoryId, String itemId) {
+    public void removeItem(UUID categoryId, UUID itemId) {
         // napravi novu verziju svih aktivnih menija koji sadrze ovu kategoriju
         List<Menu> affectedMenus = categoryRepository.findMenusByCategoryId(categoryId);
         categoryRepository.removeItemFromCategory(categoryId, itemId);

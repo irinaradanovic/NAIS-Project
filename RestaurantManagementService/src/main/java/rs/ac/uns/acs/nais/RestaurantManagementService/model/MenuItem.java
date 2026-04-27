@@ -7,6 +7,8 @@ import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 
+import java.util.UUID;
+
 @Node
 @Data
 @NoArgsConstructor
@@ -14,7 +16,7 @@ import org.springframework.data.neo4j.core.schema.Node;
 public class MenuItem {
     @Id
     @GeneratedValue(GeneratedValue.UUIDGenerator.class)
-    private String id;
+    private UUID id;
     private String name;
     private Double price; // u RSD
     private Integer calories;

@@ -11,13 +11,14 @@ import rs.ac.uns.acs.nais.RestaurantManagementService.model.Restaurant;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface MenuRepository extends Neo4jRepository<Menu, String> {
+public interface MenuRepository extends Neo4jRepository<Menu, UUID> {
 
-    @Query("MATCH (m:Menu) WHERE elementId(m) = $id " +
+    @Query("MATCH (m:Menu) WHERE m.id = $id " +
             "DETACH DELETE m")
-    void deleteById(@Param("id") String id);
+    void deleteById(@Param("id") UUID id);
 
     // sve verzije istog menija
     @Query("MATCH (m:Menu {menuId: $menuId}) RETURN m")
@@ -35,32 +36,45 @@ public interface MenuRepository extends Neo4jRepository<Menu, String> {
 
 
     @Query("MATCH (m:Menu), (c:Category) " +
-            "WHERE elementId(m) = $menuId AND elementId(c) = $categoryId " +
+            "WHERE m.id = $menuId AND c.id = $categoryId " +
             "CREATE (m)-[:HAS_CATEGORY {order: $order}]->(c)")
-    void addCategoryToMenu(@Param("menuId") String menuId,
-                           @Param("categoryId") String categoryId,
+    void addCategoryToMenu(@Param("menuId") UUID menuId,
+                           @Param("categoryId") UUID categoryId,
                            @Param("order") Integer order);
 
     @Query("MATCH (m:Menu)-[rel:HAS_CATEGORY]->(c:Category) " +
-            "WHERE elementId(m) = $menuId AND elementId(c) = $categoryId " +
+            "WHERE m.id = $menuId AND c.id = $categoryId " +
             "SET rel.order = $order")
-    void updateCategoryOrder(@Param("menuId") String menuId,
-                             @Param("categoryId") String categoryId,
+    void updateCategoryOrder(@Param("menuId") UUID menuId,
+                             @Param("categoryId") UUID categoryId,
                              @Param("order") Integer order);
 
     @Query("MATCH (m:Menu)-[rel:HAS_CATEGORY]->(c:Category) " +
-            "WHERE elementId(m) = $menuId AND elementId(c) = $categoryId " +
-            "DELETE rel")
-    void removeCategoryFromMenu(@Param("menuId") String menuId,
-                                @Param("categoryId") String categoryId);
+            "WHERE m.id = $menuId AND rel.order >= $newOrder AND c.id <> $categoryId " +
+            "SET rel.order = rel.order + 1")
+    void shiftOrders(@Param("menuId") UUID menuId,
+                     @Param("categoryId") UUID categoryId,
+                     @Param("newOrder") Integer newOrder);
 
     @Query("MATCH (m:Menu)-[rel:HAS_CATEGORY]->(c:Category) " +
-            "WHERE elementId(m) = $menuId " +
+            "WHERE m.id = $menuId AND c.id = $categoryId " +
+            "DELETE rel")
+    void removeCategoryFromMenu(@Param("menuId") UUID menuId,
+                                @Param("categoryId") UUID categoryId);
+
+    @Query("MATCH (m:Menu)-[rel:HAS_CATEGORY]->(c:Category) " +
+            "WHERE m.id = $menuId " +
             "RETURN c ORDER BY rel.order ASC")
-    List<Category> findCategoriesByMenuId(@Param("menuId") String menuId);
+    List<Category> findCategoriesByMenuId(@Param("menuId") UUID menuId);
 
     @Query("MATCH (m:Menu)-[:HAS_CATEGORY]->(c:Category) " +
-            "WHERE elementId(m) = $menuId RETURN elementId(c)")
-    List<String> findCategoryIdsByMenuId(@Param("menuId") String menuId);
+            "WHERE m.id = $menuId RETURN c.id")
+    List<UUID> findCategoryIdsByMenuId(@Param("menuId") UUID menuId);
+
+
+    @Query("MATCH (m:Menu)-[r:HAS_CATEGORY]->(c:Category) " +
+            "WHERE m.id = $id " +
+            "RETURN m, r, c ")
+    Menu findByIdWithCategories(UUID id);   // ovo koristimo za dobavljanje menija sa svim njenim kategorijama da bi mogli u novoj verziji da kopiramo sve te kategorije
 
 }

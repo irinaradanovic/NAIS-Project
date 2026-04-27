@@ -19,7 +19,7 @@ import java.util.UUID;
 public class Menu {
 
     @Id @GeneratedValue(GeneratedValue.UUIDGenerator.class)
-    private String id;
+    private UUID id;
 
     private Integer menuId;  // ovo koristimo da bi pronasli sve verzije istog menija
     private String name;

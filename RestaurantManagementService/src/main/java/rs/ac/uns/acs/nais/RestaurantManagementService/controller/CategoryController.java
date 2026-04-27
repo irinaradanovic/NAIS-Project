@@ -12,6 +12,7 @@ import rs.ac.uns.acs.nais.RestaurantManagementService.service.CategoryService;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
@@ -22,8 +23,6 @@ public class CategoryController {
     private CategoryService categoryService;
 
     // CRUD za Category cvor
-
-    // DOBAVITI SVE KATEGORIJE ZA MENI
 
     @PostMapping
     public ResponseEntity<Category> createCategory(@RequestBody CategoryDTO category) {
@@ -36,17 +35,17 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Category> getCategoryById(@PathVariable String id) {
+    public ResponseEntity<Category> getCategoryById(@PathVariable UUID id) {
         return ResponseEntity.ok(categoryService.getById(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Category> updateCategory(@PathVariable String id, @RequestBody CategoryDTO updated) {
+    public ResponseEntity<Category> updateCategory(@PathVariable UUID id, @RequestBody CategoryDTO updated) {
         return ResponseEntity.ok(categoryService.update(id, updated));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCategory(@PathVariable String id) {
+    public void deleteCategory(@PathVariable UUID id) {
         categoryService.delete(id);
     }
 
@@ -54,8 +53,8 @@ public class CategoryController {
 
     @PostMapping("/{categoryId}/items/{itemId}")
     public ResponseEntity<Void> addItem(
-            @PathVariable String categoryId,
-            @PathVariable String itemId,
+            @PathVariable UUID categoryId,
+            @PathVariable UUID itemId,
             @RequestParam(defaultValue = "0.0") Double discount,
             @RequestParam(required = false) LocalDate discountFrom,
             @RequestParam(required = false) LocalDate discountTo) {
@@ -64,14 +63,14 @@ public class CategoryController {
     }
 
     @GetMapping("/{categoryId}/items")
-    public ResponseEntity<List<MenuItem>> getItemsByCategoryId(@PathVariable String categoryId) {
+    public ResponseEntity<List<MenuItem>> getItemsByCategoryId(@PathVariable UUID categoryId) {
         return ResponseEntity.ok(categoryService.getItemsByCategoryId(categoryId));
     }
 
     @PatchMapping("/{categoryId}/items/{itemId}/discount")
     public ResponseEntity<Void> updateDiscount(
-            @PathVariable String categoryId,
-            @PathVariable String itemId,
+            @PathVariable UUID categoryId,
+            @PathVariable UUID itemId,
             @RequestParam Double discount,
             @RequestParam(required = false) LocalDate discountFrom,
             @RequestParam(required = false)  LocalDate discountTo) {
@@ -81,8 +80,8 @@ public class CategoryController {
 
     @DeleteMapping("/{categoryId}/items/{itemId}")
     public ResponseEntity<Void> removeItem(
-            @PathVariable String categoryId,
-            @PathVariable String itemId) {
+            @PathVariable UUID categoryId,
+            @PathVariable UUID itemId) {
         categoryService.removeItem(categoryId, itemId);
         return ResponseEntity.noContent().build();
     }

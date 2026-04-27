@@ -3,6 +3,7 @@ package rs.ac.uns.acs.nais.RestaurantManagementService.service;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import rs.ac.uns.acs.nais.RestaurantManagementService.dto.CheaperSimilarItemsDTO;
 import rs.ac.uns.acs.nais.RestaurantManagementService.dto.MenuItemDTO;
 import rs.ac.uns.acs.nais.RestaurantManagementService.model.Menu;
 import rs.ac.uns.acs.nais.RestaurantManagementService.model.MenuItem;
@@ -12,6 +13,7 @@ import rs.ac.uns.acs.nais.RestaurantManagementService.repository.RestaurantRepos
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -47,12 +49,12 @@ public class MenuItemService {
         return menuItemRepository.findAll();
     }
 
-    public MenuItem getById(String id) {
+    public MenuItem getById(UUID id) {
         return menuItemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Menu item with id " + id + " not found"));
     }
 
-    public MenuItem update(String id, MenuItemDTO updated) {
+    public MenuItem update(UUID id, MenuItemDTO updated) {
         MenuItem menuItem = getById(id);
         boolean priceChanged = updated.getPrice() != null
                 && !updated.getPrice().equals(menuItem.getPrice());
@@ -79,11 +81,15 @@ public class MenuItemService {
         return saved;
     }
 
-    public void delete(String id) {
+    public void delete(UUID id) {
         Optional<MenuItem> mI = menuItemRepository.findById(id);
         if(mI.isEmpty()){
             throw new RuntimeException("Menu item with id " + id + " not found");
         }
         menuItemRepository.deleteById(id);
+    }
+
+    public List<CheaperSimilarItemsDTO> getCheaperSimilarItems(UUID itemId) {
+        return  menuItemRepository.getCheaperSimilarItems(itemId);
     }
 }

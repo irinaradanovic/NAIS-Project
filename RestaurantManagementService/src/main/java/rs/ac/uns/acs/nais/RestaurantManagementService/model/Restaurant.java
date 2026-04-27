@@ -8,6 +8,7 @@ import org.springframework.data.neo4j.core.schema.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 @Node
@@ -18,7 +19,7 @@ public class Restaurant {
 
     @Id
     @GeneratedValue(GeneratedValue.UUIDGenerator.class)
-    private String id;
+    private UUID id;
 
     private String name;
     private String address;

@@ -15,10 +15,13 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
 public class MenuService {
+
+    // AKO SE AZURIRA ORDER KATEGORIJA, TREBA POMERITI I OSTALE
 
     @Autowired
     private MenuRepository menuRepository;
@@ -26,14 +29,10 @@ public class MenuService {
     @Autowired
     private RestaurantRepository restaurantRepository;
 
-    public Menu create(MenuDTO dto, String restaurantId) {  // za pravljenje inicijalnog menija, sa samo jednom verzijom
+    public Menu create(MenuDTO dto, UUID restaurantId) {  // za pravljenje inicijalnog menija, sa samo jednom verzijom
         Menu menu = new Menu();
-       if (dto.getMenuId() == null){
-            Integer nextMenuId = menuRepository.findMaxMenuId() + 1;
-            menu.setMenuId(nextMenuId);
-        }else{
-            menu.setMenuId(dto.getMenuId());
-        }
+        Integer nextMenuId = menuRepository.findMaxMenuId() + 1;
+        menu.setMenuId(nextMenuId);
         mapDtoToEntity(dto, menu);
         menu.setVersion(1);
         menu.setActivationDate(LocalDate.now());
@@ -48,7 +47,7 @@ public class MenuService {
         return menuRepository.findAll();
     }
 
-    public Menu getById(String id) {
+    public Menu getById(UUID id) {
         return menuRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Menu with id " + id + " not found"));
     }
@@ -64,9 +63,9 @@ public class MenuService {
                 .orElseThrow(() -> new RuntimeException("Meni with id " + menuId + " not found"));
     }
 
-    public Menu update(String id, MenuDTO dto) {
+    public Menu update(UUID id, MenuDTO dto) {
         Menu existing = getById(id);
-        String restaurantId = restaurantRepository.findRestaurantByMenuId(id).getId();
+        UUID restaurantId = restaurantRepository.findRestaurantByMenuId(id).getId();
         // ako su promene velike, pravi novu verziju
         if (isMajorChange(existing, dto)) {
             mapDtoToEntity(dto, existing);
@@ -76,12 +75,11 @@ public class MenuService {
             if (dto.getDescription() != null) existing.setDescription(dto.getDescription());
             return menuRepository.save(existing);
         }
-        // POVEZATI NOVU VERZIJU S RESTORANOM
     }
 
     // IMPLEMENTIRATI ROLLBACK NA NEKU VERZIJU
 
-    public void delete(String id) {
+    public void delete(UUID id) {
         Optional<Menu> m = menuRepository.findById(id);
         if(m.isEmpty()){
             throw new RuntimeException("Menu with id " + id + " not found");
@@ -94,22 +92,23 @@ public class MenuService {
 
     // HAS_CATEGORY grana
 
-    public void addCategory(String menuId, String categoryId, Integer order) {
+    public void addCategory(UUID menuId, UUID categoryId, Integer order) {
         Menu existing = getById(menuId);
         // kada napravimo novu kategoriju u meniju, pravi novu verziju menija koja ce imati tu kategoriju
         Menu newVersion = createNewVersion(existing, restaurantRepository.findRestaurantByMenuId(menuId).getId());
         menuRepository.addCategoryToMenu(newVersion.getId(), categoryId, order);
     }
 
-    public List<Category> getCategoriesByMenuId(String menuId) {
+    public List<Category> getCategoriesByMenuId(UUID menuId) {
         return menuRepository.findCategoriesByMenuId(menuId);
     }
 
-    public void updateCategoryOrder(String menuId, String categoryId, Integer order) {
+    public void updateCategoryOrder(UUID menuId, UUID categoryId, Integer order) {
+        menuRepository.shiftOrders(menuId, categoryId, order); // pomeri sve ostale kategorije za jedno mesto
         menuRepository.updateCategoryOrder(menuId, categoryId, order);
     }
 
-    public void removeCategory(String menuId, String categoryId) {
+    public void removeCategory(UUID menuId, UUID categoryId) {
         Menu existing = getById(menuId);
         // kada izbacimo neku kategoriju iz menija, pravi novu verziju menija koja nece imati tu kategoriju
         Menu newVersion = createNewVersion(existing, restaurantRepository.findRestaurantByMenuId(menuId).getId());
@@ -117,7 +116,7 @@ public class MenuService {
     }
 
 
-    public Menu createNewVersion(Menu existing, String restaurantId) {
+    public Menu createNewVersion(Menu existing, UUID restaurantId) {
         // ucitaj postojeci meni sa relacijama sa kategorijama
         Menu existingWithRels = getById(existing.getId());
 
@@ -171,7 +170,8 @@ public class MenuService {
 
     private void mapDtoToEntity(MenuDTO dto, Menu menu) {
         //Menu menu = new Menu();
-        if (dto.getMenuId() != null) menu.setMenuId(dto.getMenuId());
+        //if (dto.getMenuId() != null) menu.setMenuId(dto.getMenuId());
+        menu.setMenuId(menu.getMenuId());
         if (dto.getName() != null) menu.setName(dto.getName());
         if (dto.getDescription() != null) menu.setDescription(dto.getDescription());
         if (dto.getType() != null) menu.setType(dto.getType());

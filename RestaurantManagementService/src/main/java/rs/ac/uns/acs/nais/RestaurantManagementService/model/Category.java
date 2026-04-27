@@ -8,6 +8,7 @@ import org.springframework.data.neo4j.core.schema.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Node
 @Data
@@ -16,10 +17,10 @@ import java.util.List;
 public class Category {
 
     @Id @GeneratedValue(GeneratedValue.UUIDGenerator.class)
-    private String id;
+    private UUID id;
     private String name;
 
     @Relationship(type = "INCLUDES_ITEM", direction = Relationship.Direction.OUTGOING)
     @JsonIgnore
-    private List<IncludesItemRel> menuItems = new ArrayList<>();;
+    private List<IncludesItemRel> menuItems = new ArrayList<>();
 }
