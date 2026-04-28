@@ -112,5 +112,15 @@ public class RestaurantController {
     }
 
 
+    // kompleksni crud
+    @PutMapping("/{restaurantId}/menus/{menuId}/rollback")
+    public ResponseEntity<Void> rollbackToVersion(
+            @PathVariable UUID restaurantId,
+            @PathVariable UUID menuId) {
+        restaurantService.rollbackToVersion(restaurantId, menuId);
+        return ResponseEntity.ok().build();
+    }
+
+
 
 }

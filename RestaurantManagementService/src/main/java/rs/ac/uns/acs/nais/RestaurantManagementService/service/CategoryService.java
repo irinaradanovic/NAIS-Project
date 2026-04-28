@@ -63,12 +63,12 @@ public class CategoryService {
     public void addItem(UUID categoryId, UUID itemId, Double discount, LocalDate from, LocalDate to) {
         categoryRepository.addItemToCategory(categoryId, itemId, discount, from, to);
         // napravi novu verziju svih aktivnih menija koji sadrze ovu kategoriju
-        List<Menu> affectedMenus = categoryRepository.findMenusByCategoryId(categoryId);
+        /*List<Menu> affectedMenus = categoryRepository.findMenusByCategoryId(categoryId);
         for (Menu menu : affectedMenus) {
             if (menu.getDeactivationDate() == null) {  // samo aktivni meniji
                 menuService.createNewVersion(menu, restaurantRepository.findRestaurantByMenuId(menu.getId()).getId());
             }
-        }
+        } */
     }
 
     public List<MenuItem> getItemsByCategoryId(UUID categoryId) {
@@ -81,14 +81,20 @@ public class CategoryService {
 
     public void removeItem(UUID categoryId, UUID itemId) {
         // napravi novu verziju svih aktivnih menija koji sadrze ovu kategoriju
-        List<Menu> affectedMenus = categoryRepository.findMenusByCategoryId(categoryId);
+        //List<Menu> affectedMenus = categoryRepository.findMenusByCategoryId(categoryId);
         categoryRepository.removeItemFromCategory(categoryId, itemId);
 
-        for (Menu menu : affectedMenus) {
+       /* for (Menu menu : affectedMenus) {
             if (menu.getDeactivationDate() == null) {
                 menuService.createNewVersion(menu, restaurantRepository.findRestaurantByMenuId(menu.getId()).getId());
             }
-        }
+        } */
+    }
+
+
+    public void setWeeklyDiscountByCategory(UUID categoryId, Double discount){
+        categoryRepository.setWeeklyDiscountByCategory(categoryId, discount);
+        // dobaviti onda i iteme te kategorije kada se popravi bug
     }
 
 }

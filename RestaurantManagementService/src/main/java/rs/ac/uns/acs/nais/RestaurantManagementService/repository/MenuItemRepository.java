@@ -29,6 +29,6 @@ public interface MenuItemRepository extends Neo4jRepository<MenuItem, UUID> {
             "WITH r, c, i.price AS currentPrice " +
             "MATCH (r)-[:HAS_MENU]->(:Menu)-[:HAS_CATEGORY]->(c)-[:INCLUDES_ITEM]->(other:MenuItem) " +
             "WHERE other.price < currentPrice " +
-            "RETURN other.name AS itemNam, other.price AS itemPrice, r.name AS restaurantName")
+            "RETURN other.name AS itemName, other.price AS itemPrice, r.name AS restaurantName")
     List<CheaperSimilarItemsDTO> getCheaperSimilarItems(@Param("itemId") UUID itemId);
 }

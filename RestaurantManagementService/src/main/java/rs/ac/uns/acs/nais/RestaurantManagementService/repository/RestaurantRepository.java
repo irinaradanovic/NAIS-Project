@@ -43,9 +43,9 @@ public interface RestaurantRepository extends Neo4jRepository<Restaurant, UUID> 
                                 @Param("menuId") UUID menuId,
                                 @Param("active") Boolean active);
 
-    @Query("MATCH (r:Restaurant)-[rel:HAS_MENU]->(m:Menu) " +
+    @Query("MATCH (r:Restaurant)-[rel:HAS_MENU]->(menu:Menu) " +
             "WHERE r.id = $restaurantId AND rel.active = true " +
-            "RETURN m")
+            "RETURN menu")
     List<Menu> findActiveMenusByRestaurantId(@Param("restaurantId") UUID restaurantId);
 
     @Query("MATCH (r:Restaurant)-[rel:HAS_MENU]->(m:Menu) " +
@@ -76,6 +76,13 @@ public interface RestaurantRepository extends Neo4jRepository<Restaurant, UUID> 
             "RETURN r.name AS restaurantName, c.name AS categoryName, " +
             "dCount AS discountedCount, price AS avgDiscountedPrice")
     List<DiscountAnalysisDTO> getGlobalDiscountAnalysis();
+
+    @Query("MATCH (target:Menu {id: $targetNodeId}) " +
+            "MATCH (r:Restaurant {id: $restaurantId})-[rel:HAS_MENU]->(m:Menu) " +
+            "WHERE m.menuId = target.menuId " + // gledaj samo verzije tog istog menija
+            "SET rel.active = (m.id = target.id)")
+    void rollbackToMenuVersion(@Param("restaurantId") UUID restaurantId,
+                               @Param("targetNodeId") UUID $targetNodeId);
 
 
 }

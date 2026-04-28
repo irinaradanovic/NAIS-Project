@@ -301,14 +301,21 @@ CREATE (kfc_m3_i7:MenuItem {
     description: 'Hrskavi pomfrit', quantity: 150, unit: 'g',
     timeMin: 3, timeMax: 5
 })
+CREATE (kfc_m3_i_8:MenuItem {
+    id: randomUUID(),
+    name: 'Grander Burger', price: 780.0, calories: 750,
+    description: 'Veliki burger sa slaninom', quantity: 1, unit: 'kom',
+    timeMin: 8, timeMax: 12
+})
 
 CREATE (kfc_m3_cat1)-[:INCLUDES_ITEM {discount: 0.0}]->(kfc_m3_i1)
 CREATE (kfc_m3_cat1)-[:INCLUDES_ITEM {discount: 0.1, discountFrom: date('2026-03-01'), discountTo: date('2026-04-01')}]->(kfc_m3_i2)
-CREATE (kfc_m3_cat2)-[:INCLUDES_ITEM {discount: 0.0}]->(kfc_m3_i3)
-CREATE (kfc_m3_cat2)-[:INCLUDES_ITEM {discount: 0.0}]->(kfc_m3_i4)
+CREATE (kfc_m3_cat2)-[:INCLUDES_ITEM {discount: 0.15, discountFrom: date('2026-04-01'), discountTo: date('2026-05-01')}]->(kfc_m3_i3)
+CREATE (kfc_m3_cat2)-[:INCLUDES_ITEM {discount: 0.15, discountFrom: date('2026-04-01'), discountTo: date('2026-05-01')}]->(kfc_m3_i4)
 CREATE (kfc_m3_cat3)-[:INCLUDES_ITEM {discount: 0.0}]->(kfc_m3_i5)
 CREATE (kfc_m3_cat4)-[:INCLUDES_ITEM {discount: 0.0}]->(kfc_m3_i6)
 CREATE (kfc_m3_cat4)-[:INCLUDES_ITEM {discount: 0.0}]->(kfc_m3_i7)
+CREATE (kfc_m3_cat2)-[:INCLUDES_ITEM {discount: 0.2, discountFrom: date('2026-04-01'), discountTo: date('2026-05-01')}]->(kfc_m3_i_8)
 
 CREATE (kfc_m4_cat1:Category {id: randomUUID(), name: 'Sladoledi'})
 CREATE (kfc_m4)-[:HAS_CATEGORY {order: 1}]->(kfc_m4_cat1)
@@ -426,7 +433,44 @@ CREATE (lanterna_i1:MenuItem {
     description: 'Domaće lazanje sa bolonjeze sosom', quantity: 450, unit: 'g',
     timeMin: 20, timeMax: 30
 })
+CREATE (lanterna_i2:MenuItem {id: randomUUID(), name: 'Saltimbocca', price: 1600.0, calories: 950, description: 'Teletina sa pršutom', quantity: 350, unit: 'g', timeMin: 15, timeMax: 25})
+CREATE (lanterna_i3:MenuItem {id: randomUUID(), name: 'Osso Buco', price: 1850.0, calories: 1100, description: 'Dinstana teletina', quantity: 400, unit: 'g', timeMin: 30, timeMax: 50})
 
-CREATE (lanterna_cat1)-[:INCLUDES_ITEM {discount: 0.0}]->(lanterna_i1)
+CREATE (lanterna_cat1)-[:INCLUDES_ITEM {discount: 0.1, discountFrom: date('2026-04-01'), discountTo: date('2026-05-01')}]->(lanterna_i1)
+CREATE (lanterna_cat1)-[:INCLUDES_ITEM {discount: 0.2, discountFrom: date('2026-04-01'), discountTo: date('2026-05-01')}]->(lanterna_i2)
+CREATE (lanterna_cat1)-[:INCLUDES_ITEM {discount: 0.25, discountFrom: date('2026-04-01'), discountTo: date('2026-05-01')}]->(lanterna_i3)
 
-RETURN "Baza je popunjena sa 4 restorana";
+CREATE (petrus:Restaurant {id: randomUUID(), name: 'Petrus Caffe', address: 'Trg Slobode 4', contact: '021/444-555'})
+CREATE (petrus_m:Menu {id: randomUUID(), menuId: 808, version: 1, name: 'Glavni Meni', description: 'Ekskluzivna ponuda', type: 'STANDARD', activationDate: date('2026-01-01')})
+CREATE (petrus)-[:HAS_MENU {active: true}]->(petrus_m)
+
+CREATE (p_cat1:Category {id: randomUUID(), name: 'Premium Stejkovi'})
+CREATE (p_cat2:Category {id: randomUUID(), name: 'Jeftini Doručak'})
+
+CREATE (petrus_m)-[:HAS_CATEGORY {order: 1}]->(p_cat1)
+CREATE (petrus_m)-[:HAS_CATEGORY {order: 2}]->(p_cat2)
+
+
+// Skupa jela dizu prosek restorana
+CREATE (p_i1:MenuItem {id: randomUUID(), name: 'Ribeye Stejk', price: 3500.0, calories: 1200, timeMin: 25, timeMax: 40})
+CREATE (p_i2:MenuItem {id: randomUUID(), name: 'T-Bone Stejk', price: 4200.0, calories: 1500, timeMin: 30, timeMax: 45})
+
+
+// Jeftina jela prave "Underpriced Category" za kompleksni upit
+CREATE (p_i3:MenuItem {id: randomUUID(), name: 'Omlet sa sirom', price: 450.0, calories: 600, timeMin: 5, timeMax: 10})
+CREATE (p_i4:MenuItem {id: randomUUID(), name: 'Prženice', price: 380.0, calories: 700, timeMin: 5, timeMax: 10})
+
+MATCH (c:Category {name: 'Premium Stejkovi'})
+MATCH (i:MenuItem {name: 'T-Bone Stejk'})
+CREATE (c)-[:INCLUDES_ITEM {discount: 0.0}]->(i);
+
+MATCH (c:Category {name: 'Jeftini Doručak'})
+MATCH (i:MenuItem {name: 'Omlet sa sirom'})
+CREATE (c)-[:INCLUDES_ITEM {discount: 0.0}]->(i);
+
+MATCH (c:Category {name: 'Jeftini Doručak'})
+MATCH (i:MenuItem {name: 'Prženice'})
+CREATE (c)-[:INCLUDES_ITEM {discount: 0.0}]->(i);
+
+
+RETURN "Baza je popunjena sa 5 restorana";
