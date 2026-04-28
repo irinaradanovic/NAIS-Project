@@ -1,5 +1,5 @@
 server:
-  port: 9050
+  port: 8083
 
 spring:
   neo4j:
@@ -9,11 +9,11 @@ spring:
       password: password
   application:
     name: finance-management-service
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+  #rabbitmq:
+   # host: localhost
+    #port: 5672
+    #username: guest
+    #password: guest
 
 eureka:
   client:
