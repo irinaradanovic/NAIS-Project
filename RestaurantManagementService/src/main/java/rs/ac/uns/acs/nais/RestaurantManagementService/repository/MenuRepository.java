@@ -29,7 +29,6 @@ public interface MenuRepository extends Neo4jRepository<Menu, UUID> {
             "RETURN m ORDER BY m.version DESC LIMIT 1")
     Optional<Menu> findLatestVersionByMenuId(@Param("menuId") Integer menuId);
 
-    List<Menu> findByType(MenuType type);
 
     @Query("MATCH (m:Menu) RETURN coalesce(max(m.menuId), 0)")
     Integer findMaxMenuId();
@@ -62,9 +61,9 @@ public interface MenuRepository extends Neo4jRepository<Menu, UUID> {
     void removeCategoryFromMenu(@Param("menuId") UUID menuId,
                                 @Param("categoryId") UUID categoryId);
 
-    @Query("MATCH (m:Menu)-[rel:HAS_CATEGORY]->(c:Category) " +
+    @Query("MATCH (m:Menu)-[rel:HAS_CATEGORY]->(category:Category) " +
             "WHERE m.id = $menuId " +
-            "RETURN c ORDER BY rel.order ASC")
+            "RETURN category ORDER BY rel.order ASC")
     List<Category> findCategoriesByMenuId(@Param("menuId") UUID menuId);
 
     @Query("MATCH (m:Menu)-[:HAS_CATEGORY]->(c:Category) " +

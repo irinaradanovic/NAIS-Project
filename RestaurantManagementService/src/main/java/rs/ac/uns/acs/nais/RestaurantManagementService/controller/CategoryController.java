@@ -87,4 +87,18 @@ public class CategoryController {
     }
 
 
+    // KOMPLEKSNI CRUD
+
+    /*
+    * postavljanje popusta za odredjenu kategoriju u trajanju od nedelju dana
+    *  */
+    @PutMapping("/categories/{categoryId}/special-offer")
+    public ResponseEntity<String> applySpecialOffer(
+            @PathVariable UUID categoryId,
+            @RequestParam Double discount) {
+        categoryService.setWeeklyDiscountByCategory(categoryId, discount);
+        return ResponseEntity.ok("Akcija uspešno aktivirana.");
+    }
+
+
 }

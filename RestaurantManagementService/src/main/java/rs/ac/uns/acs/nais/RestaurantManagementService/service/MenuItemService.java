@@ -2,6 +2,7 @@ package rs.ac.uns.acs.nais.RestaurantManagementService.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.acs.nais.RestaurantManagementService.dto.CheaperSimilarItemsDTO;
 import rs.ac.uns.acs.nais.RestaurantManagementService.dto.MenuItemDTO;
@@ -30,6 +31,8 @@ public class MenuItemService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    private final Neo4jClient neo4jClient;
 
 
     public MenuItem create(MenuItemDTO dto) {
@@ -89,7 +92,30 @@ public class MenuItemService {
         menuItemRepository.deleteById(id);
     }
 
-    public List<CheaperSimilarItemsDTO> getCheaperSimilarItems(UUID itemId) {
+   /* public List<CheaperSimilarItemsDTO> getCheaperSimilarItems(UUID itemId) {
         return  menuItemRepository.getCheaperSimilarItems(itemId);
-    }
+    } */
+
+
+
+    public List<CheaperSimilarItemsDTO> getCheaperSimilarItems(UUID itemId) {
+            String query = """
+            MATCH (i:MenuItem {id: $itemId})<-[:INCLUDES_ITEM]-(c:Category)<-[:HAS_CATEGORY]-(m:Menu)<-[:HAS_MENU]-(r:Restaurant)
+            WITH r, c, i.price AS currentPrice
+            MATCH (r)-[:HAS_MENU]->(:Menu)-[:HAS_CATEGORY]->(c)-[:INCLUDES_ITEM]->(other:MenuItem)
+            WHERE other.price < currentPrice
+            RETURN other.name AS itemName, other.price AS itemPrice, r.name AS restaurantName
+            """;
+            return neo4jClient.query(query)
+                    .bind(itemId.toString()).to("itemId")
+                    .fetchAs(CheaperSimilarItemsDTO.class)
+                    .mappedBy((typeSystem, record) -> new CheaperSimilarItemsDTO(
+                            record.get("itemName").asString(),
+                            record.get("itemPrice").asDouble(),
+                            record.get("restaurantName").asString()
+                    ))
+                    .all()
+                    .stream().toList();
+        }
+
 }

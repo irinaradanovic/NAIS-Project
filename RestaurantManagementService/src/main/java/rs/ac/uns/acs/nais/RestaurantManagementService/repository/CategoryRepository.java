@@ -44,9 +44,9 @@ public interface CategoryRepository extends Neo4jRepository<Category, UUID> {
     void removeItemFromCategory(@Param("categoryId") UUID categoryId,
                                 @Param("itemId") UUID itemId);
 
-    @Query("MATCH (c:Category)-[rel:INCLUDES_ITEM]->(i:MenuItem) " +
+    @Query("MATCH (c:Category)-[rel:INCLUDES_ITEM]->(menuItem:MenuItem) " +
             "WHERE c.id = $categoryId " +
-            "RETURN i")
+            "RETURN menuItem")
     List<MenuItem> findItemsByCategoryId(@Param("categoryId") UUID categoryId);
 
     @Query("MATCH (m:Menu)-[:HAS_CATEGORY]->(c:Category) " +
@@ -58,6 +58,15 @@ public interface CategoryRepository extends Neo4jRepository<Category, UUID> {
             " WHERE i.id = $itemId " +
             "RETURN m")
     List<Menu> findMenusByItemId(@Param("itemId") UUID itemId);
+
+
+    @Query("MATCH (c:Category {id: $categoryId})-[rel:INCLUDES_ITEM]->(i:MenuItem) " +
+            "SET rel.discount = $newDiscount, " +
+            "    rel.discountFrom = date(), " +   // date() je danasnji datum
+            "    rel.discountTo = date() + duration('P7D') " +   // 7 dana od danasnjeg datuma
+            "RETURN count(rel)")
+    void setWeeklyDiscountByCategory(@Param("categoryId") UUID categoryId,
+                                        @Param("newDiscount") Double newDiscount);
 
 
 }

@@ -1,11 +1,13 @@
 package rs.ac.uns.acs.nais.RestaurantManagementService.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 public class DiscountAnalysisDTO {
     private String restaurantName;
     private String categoryName;
