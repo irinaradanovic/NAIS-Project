@@ -56,5 +56,20 @@ services:
       SPRING_NEO4J_AUTHENTICATION_PASSWORD: password
     ports:
       - "8083:8083"
+
+  order-management-service:
+    build:
+      context: ./order-management-service
+      dockerfile: Dockerfile
+    depends_on:
+      - eureka-server
+      - neo4j
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_NEO4J_URI: bolt://neo4j:7687
+      SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
+      SPRING_NEO4J_AUTHENTICATION_PASSWORD: password
+    ports:
+      - "8084:8084"
 volumes:
   neo4j_data: {}
