@@ -1,10 +1,13 @@
 package rs.ac.uns.acs.nais.FinanceManagementService.service.impl;
 
+import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.acs.nais.FinanceManagementService.model.Vlasnik;
 import rs.ac.uns.acs.nais.FinanceManagementService.repository.VlasnikRepository;
 import rs.ac.uns.acs.nais.FinanceManagementService.service.IVlasnikService;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,9 +15,11 @@ import java.util.Map;
 public class VlasnikService implements IVlasnikService {
 
     private final VlasnikRepository vlasnikRepository;
+    private final Neo4jClient neo4jClient;
 
-    public VlasnikService(VlasnikRepository vlasnikRepository) {
+    public VlasnikService(VlasnikRepository vlasnikRepository, Neo4jClient neo4jClient) {
         this.vlasnikRepository = vlasnikRepository;
+        this.neo4jClient = neo4jClient;
     }
 
     @Override
@@ -62,11 +67,52 @@ public class VlasnikService implements IVlasnikService {
 
     @Override
     public List<Map<String, Object>> vlasniciBrojStanovaIProsecnaKvadratura() {
-        return vlasnikRepository.vlasniciBrojStanovaIProsecnaKvadratura();
+        String query = """
+                MATCH (v:Vlasnik)-[:POSEDUJE]->(s:Stan)
+                WHERE v.isAktivan = true
+                WITH v, COUNT(s) AS brojStanova, AVG(s.kvadratura) AS prosecnaKvadratura
+                WHERE brojStanova > 1
+                RETURN v.ime AS ime, v.prezime AS prezime,
+                       brojStanova, ROUND(prosecnaKvadratura, 2) AS prosecnaKvadratura
+                ORDER BY brojStanova DESC
+                """;
+
+        return new ArrayList<>(neo4jClient.query(query)
+                .fetchAs(Map.class)
+                .mappedBy((typeSystem, record) -> {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("ime", record.get("ime").asString());
+                    row.put("prezime", record.get("prezime").asString());
+                    row.put("brojStanova", record.get("brojStanova").asLong());
+                    row.put("prosecnaKvadratura", record.get("prosecnaKvadratura").asDouble());
+                    return row;
+                })
+                .all());
     }
 
     @Override
     public List<Map<String, Object>> vlasniciBrojNeplacenihRacuna() {
-        return vlasnikRepository.vlasniciBrojNeplacenihRacuna();
+        String query = """
+                MATCH (v:Vlasnik)-[:POSEDUJE]->(s:Stan)<-[:STANUJE_U]-(st:Stanar)-[ir:IMA_RACUN]->(r:Racun)
+                WHERE r.isPlacen = false AND v.isAktivan = true
+                WITH v, COUNT(r) AS brojNeplacenih, SUM(r.iznos) AS ukupnoNeplaceno
+                WHERE brojNeplacenih > 0
+                RETURN v.ime AS ime, v.prezime AS prezime, v.email AS email,
+                       brojNeplacenih, ROUND(ukupnoNeplaceno, 2) AS ukupnoNeplaceno
+                ORDER BY ukupnoNeplaceno DESC
+                """;
+
+        return new ArrayList<>(neo4jClient.query(query)
+                .fetchAs(Map.class)
+                .mappedBy((typeSystem, record) -> {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("ime", record.get("ime").asString());
+                    row.put("prezime", record.get("prezime").asString());
+                    row.put("email", record.get("email").asString());
+                    row.put("brojNeplacenih", record.get("brojNeplacenih").asLong());
+                    row.put("ukupnoNeplaceno", record.get("ukupnoNeplaceno").asDouble());
+                    return row;
+                })
+                .all());
     }
 }

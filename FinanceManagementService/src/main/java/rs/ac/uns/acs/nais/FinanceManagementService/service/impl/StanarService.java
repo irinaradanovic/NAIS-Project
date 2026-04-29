@@ -3,6 +3,7 @@ package rs.ac.uns.acs.nais.FinanceManagementService.service.impl;
 import com.lowagie.text.*;
 import com.lowagie.text.Font;
 import com.lowagie.text.pdf.*;
+import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.acs.nais.FinanceManagementService.dto.PlatiRacunDTO;
 import rs.ac.uns.acs.nais.FinanceManagementService.dto.StanovanjeDTO;
@@ -13,6 +14,8 @@ import rs.ac.uns.acs.nais.FinanceManagementService.service.IStanarService;
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,9 +23,11 @@ import java.util.Map;
 public class StanarService implements IStanarService {
 
     private final StanarRepository stanarRepository;
+    private final Neo4jClient neo4jClient;
 
-    public StanarService(StanarRepository stanarRepository) {
+    public StanarService(StanarRepository stanarRepository, Neo4jClient neo4jClient) {
         this.stanarRepository = stanarRepository;
+        this.neo4jClient = neo4jClient;
     }
 
     @Override
@@ -87,26 +92,86 @@ public class StanarService implements IStanarService {
 
     @Override
     public List<Map<String, Object>> stanariSaDugovima() {
-        return stanarRepository.stanariSaDugovima();
+        String query = """
+                MATCH (st:Stanar)-[ir:IMA_RACUN]->(r:Racun)
+                WHERE r.isPlacen = false AND st.isAktivan = true
+                WITH st, COUNT(r) AS brojNeplacenih, SUM(r.iznos) AS ukupanDug
+                WHERE brojNeplacenih > 0
+                RETURN st.ime AS ime, st.prezime AS prezime, st.email AS email,
+                       brojNeplacenih, ROUND(ukupanDug, 2) AS ukupanDug
+                ORDER BY ukupanDug DESC
+                """;
+
+        return new ArrayList<>(neo4jClient.query(query)
+                .fetchAs(Map.class)
+                .mappedBy((typeSystem, record) -> {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("ime", record.get("ime").asString());
+                    row.put("prezime", record.get("prezime").asString());
+                    row.put("email", record.get("email").asString());
+                    row.put("brojNeplacenih", record.get("brojNeplacenih").asLong());
+                    row.put("ukupanDug", record.get("ukupanDug").asDouble());
+                    return row;
+                })
+                .all());
     }
 
     @Override
     public List<Map<String, Object>> prosecnaKirijaPoAdresi() {
-        return stanarRepository.prosecnaKirijaPoAdresi();
+        String query = """
+                MATCH (st:Stanar)-[r:STANUJE_U]->(s:Stan)
+                WHERE st.isAktivan = true
+                WITH s.adresa AS adresa, AVG(r.mesecnaKirija) AS prosecnaKirija, COUNT(st) AS brojStanara
+                WHERE brojStanara > 0
+                RETURN adresa, ROUND(prosecnaKirija, 2) AS prosecnaKirija, brojStanara
+                ORDER BY prosecnaKirija DESC
+                """;
+
+        return new ArrayList<>(neo4jClient.query(query)
+                .fetchAs(Map.class)
+                .mappedBy((typeSystem, record) -> {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("adresa", record.get("adresa").asString());
+                    row.put("prosecnaKirija", record.get("prosecnaKirija").asDouble());
+                    row.put("brojStanara", record.get("brojStanara").asLong());
+                    return row;
+                })
+                .all());
     }
 
     @Override
     public List<Map<String, Object>> stanariIspodProsecneKirije() {
-        return stanarRepository.stanariIspodProsecneKirije();
+        String query = """
+                MATCH (st:Stanar)-[r:STANUJE_U]->(s:Stan)
+                WHERE st.isAktivan = true
+                WITH s.adresa AS adresa, AVG(r.mesecnaKirija) AS prosecnaKirijaNaAdresi
+                MATCH (st2:Stanar)-[r2:STANUJE_U]->(s2:Stan)
+                WHERE s2.adresa = adresa AND r2.mesecnaKirija < prosecnaKirijaNaAdresi
+                WITH st2, r2.mesecnaKirija AS trenutnaKirija, prosecnaKirijaNaAdresi,
+                     ROUND(prosecnaKirijaNaAdresi - r2.mesecnaKirija, 2) AS razlika
+                WHERE razlika > 0
+                RETURN st2.ime AS ime, st2.prezime AS prezime,
+                       trenutnaKirija, ROUND(prosecnaKirijaNaAdresi, 2) AS prosecnaKirija, razlika
+                ORDER BY razlika DESC
+                """;
+
+        return new ArrayList<>(neo4jClient.query(query)
+                .fetchAs(Map.class)
+                .mappedBy((typeSystem, record) -> {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("ime", record.get("ime").asString());
+                    row.put("prezime", record.get("prezime").asString());
+                    row.put("trenutnaKirija", record.get("trenutnaKirija").asDouble());
+                    row.put("prosecnaKirija", record.get("prosecnaKirija").asDouble());
+                    row.put("razlika", record.get("razlika").asDouble());
+                    return row;
+                })
+                .all());
     }
 
-    /**
-     * Generise PDF izvestaj stanara sa dugovima.
-     * Prikazuje ime, prezime, email, broj neplacenih racuna i ukupan dug.
-     */
     @Override
     public byte[] exportIzvestaj() throws IOException {
-        List<Map<String, Object>> dugovi = stanarRepository.stanariSaDugovima();
+        List<Map<String, Object>> dugovi = stanariSaDugovima();
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         Document document = new Document();

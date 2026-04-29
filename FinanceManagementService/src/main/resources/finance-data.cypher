@@ -1,4 +1,4 @@
-
+//Block 1
 CREATE (fond1:FinansijskiFond {
     idOriginal: 'FOND-001',
     naziv: 'Fond za tekuce odrzavanje',
@@ -27,6 +27,8 @@ CREATE (fond4:FinansijskiFond {
     mesecniDoprinos: 500.0,
     isAktivan: false
 })
+
+//Block 2
 
 CREATE (stan1:Stan {
     idOriginal: 'STAN-001',
@@ -98,6 +100,8 @@ CREATE (stan7)-[:PRIPADA_FONDU]->(fond1)
 CREATE (stan7)-[:PRIPADA_FONDU]->(fond4)
 CREATE (stan8)-[:PRIPADA_FONDU]->(fond1)
 
+//Block 3
+
 CREATE (v1:Vlasnik {
     idOriginal: 1,
     ime: 'Marko',
@@ -147,6 +151,8 @@ CREATE (v3)-[:POSEDUJE]->(stan5)
 CREATE (v3)-[:POSEDUJE]->(stan6)
 CREATE (v4)-[:POSEDUJE]->(stan7)
 CREATE (v5)-[:POSEDUJE]->(stan8)
+
+//Block 4
 
 CREATE (r1:Racun {
     idOriginal: 'RAC-001',

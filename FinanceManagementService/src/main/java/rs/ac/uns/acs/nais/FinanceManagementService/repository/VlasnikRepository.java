@@ -28,36 +28,4 @@ public interface VlasnikRepository extends Neo4jRepository<Vlasnik, Long> {
     @Query("MATCH (v:Vlasnik {idOriginal: $vlasnikId})-[r:POSEDUJE]->(s:Stan {idOriginal: $stanId}) " +
            "DELETE r")
     void ukloniStan(@Param("vlasnikId") Long vlasnikId, @Param("stanId") String stanId);
-
-    // =====================================================================
-    // Slozeni upiti (MATCH + WHERE + WITH + agregacione funkcije)
-    // =====================================================================
-
-    /**
-     * [Slozeni upit 1]
-     * Za svakog vlasnika prikazuje ukupan broj stanova i prosecnu kvadraturu,
-     * filtrirano na vlasnike koji imaju vise od 1 stana.
-     */
-    @Query("MATCH (v:Vlasnik)-[:POSEDUJE]->(s:Stan) " +
-           "WHERE v.isAktivan = true " +
-           "WITH v, COUNT(s) AS brojStanova, AVG(s.kvadratura) AS prosecnaKvadratura " +
-           "WHERE brojStanova > 1 " +
-           "RETURN v.ime AS ime, v.prezime AS prezime, " +
-           "       brojStanova, ROUND(prosecnaKvadratura, 2) AS prosecnaKvadratura " +
-           "ORDER BY brojStanova DESC")
-    List<Map<String, Object>> vlasniciBrojStanovaIProsecnaKvadratura();
-
-    /**
-     * [Slozeni upit 2]
-     * Vlasnici ciji stanari imaju neplacene racune — prikazuje ime vlasnika,
-     * broj neplacenih racuna i ukupan neplacen iznos.
-     */
-    @Query("MATCH (v:Vlasnik)-[:POSEDUJE]->(s:Stan)<-[:STANUJE_U]-(st:Stanar)-[ir:IMA_RACUN]->(r:Racun) " +
-           "WHERE r.isPlacen = false AND v.isAktivan = true " +
-           "WITH v, COUNT(r) AS brojNeplacenih, SUM(r.iznos) AS ukupnoNeplaceno " +
-           "WHERE brojNeplacenih > 0 " +
-           "RETURN v.ime AS ime, v.prezime AS prezime, v.email AS email, " +
-           "       brojNeplacenih, ROUND(ukupnoNeplaceno, 2) AS ukupnoNeplaceno " +
-           "ORDER BY ukupnoNeplaceno DESC")
-    List<Map<String, Object>> vlasniciBrojNeplacenihRacuna();
 }
