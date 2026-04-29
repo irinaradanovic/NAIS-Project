@@ -14,10 +14,10 @@ import rs.ac.uns.acs.nais.FinanceManagementService.service.IStanarService;
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class StanarService implements IStanarService {
@@ -91,6 +91,7 @@ public class StanarService implements IStanarService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<Map<String, Object>> stanariSaDugovima() {
         String query = """
                 MATCH (st:Stanar)-[ir:IMA_RACUN]->(r:Racun)
@@ -102,7 +103,7 @@ public class StanarService implements IStanarService {
                 ORDER BY ukupanDug DESC
                 """;
 
-        return new ArrayList<>(neo4jClient.query(query)
+        return neo4jClient.query(query)
                 .fetchAs(Map.class)
                 .mappedBy((typeSystem, record) -> {
                     Map<String, Object> row = new HashMap<>();
@@ -113,10 +114,14 @@ public class StanarService implements IStanarService {
                     row.put("ukupanDug", record.get("ukupanDug").asDouble());
                     return row;
                 })
-                .all());
+                .all()
+                .stream()
+                .map(m -> (Map<String, Object>) m)
+                .collect(Collectors.toList());
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<Map<String, Object>> prosecnaKirijaPoAdresi() {
         String query = """
                 MATCH (st:Stanar)-[r:STANUJE_U]->(s:Stan)
@@ -127,7 +132,7 @@ public class StanarService implements IStanarService {
                 ORDER BY prosecnaKirija DESC
                 """;
 
-        return new ArrayList<>(neo4jClient.query(query)
+        return neo4jClient.query(query)
                 .fetchAs(Map.class)
                 .mappedBy((typeSystem, record) -> {
                     Map<String, Object> row = new HashMap<>();
@@ -136,10 +141,14 @@ public class StanarService implements IStanarService {
                     row.put("brojStanara", record.get("brojStanara").asLong());
                     return row;
                 })
-                .all());
+                .all()
+                .stream()
+                .map(m -> (Map<String, Object>) m)
+                .collect(Collectors.toList());
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<Map<String, Object>> stanariIspodProsecneKirije() {
         String query = """
                 MATCH (st:Stanar)-[r:STANUJE_U]->(s:Stan)
@@ -155,7 +164,7 @@ public class StanarService implements IStanarService {
                 ORDER BY razlika DESC
                 """;
 
-        return new ArrayList<>(neo4jClient.query(query)
+        return neo4jClient.query(query)
                 .fetchAs(Map.class)
                 .mappedBy((typeSystem, record) -> {
                     Map<String, Object> row = new HashMap<>();
@@ -166,7 +175,10 @@ public class StanarService implements IStanarService {
                     row.put("razlika", record.get("razlika").asDouble());
                     return row;
                 })
-                .all());
+                .all()
+                .stream()
+                .map(m -> (Map<String, Object>) m)
+                .collect(Collectors.toList());
     }
 
     @Override

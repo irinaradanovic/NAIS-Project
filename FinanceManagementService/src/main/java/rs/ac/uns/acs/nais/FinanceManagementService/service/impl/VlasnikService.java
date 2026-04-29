@@ -6,10 +6,10 @@ import rs.ac.uns.acs.nais.FinanceManagementService.model.Vlasnik;
 import rs.ac.uns.acs.nais.FinanceManagementService.repository.VlasnikRepository;
 import rs.ac.uns.acs.nais.FinanceManagementService.service.IVlasnikService;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class VlasnikService implements IVlasnikService {
@@ -66,6 +66,7 @@ public class VlasnikService implements IVlasnikService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<Map<String, Object>> vlasniciBrojStanovaIProsecnaKvadratura() {
         String query = """
                 MATCH (v:Vlasnik)-[:POSEDUJE]->(s:Stan)
@@ -77,7 +78,7 @@ public class VlasnikService implements IVlasnikService {
                 ORDER BY brojStanova DESC
                 """;
 
-        return new ArrayList<>(neo4jClient.query(query)
+        return neo4jClient.query(query)
                 .fetchAs(Map.class)
                 .mappedBy((typeSystem, record) -> {
                     Map<String, Object> row = new HashMap<>();
@@ -87,10 +88,14 @@ public class VlasnikService implements IVlasnikService {
                     row.put("prosecnaKvadratura", record.get("prosecnaKvadratura").asDouble());
                     return row;
                 })
-                .all());
+                .all()
+                .stream()
+                .map(m -> (Map<String, Object>) m)
+                .collect(Collectors.toList());
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<Map<String, Object>> vlasniciBrojNeplacenihRacuna() {
         String query = """
                 MATCH (v:Vlasnik)-[:POSEDUJE]->(s:Stan)<-[:STANUJE_U]-(st:Stanar)-[ir:IMA_RACUN]->(r:Racun)
@@ -102,7 +107,7 @@ public class VlasnikService implements IVlasnikService {
                 ORDER BY ukupnoNeplaceno DESC
                 """;
 
-        return new ArrayList<>(neo4jClient.query(query)
+        return neo4jClient.query(query)
                 .fetchAs(Map.class)
                 .mappedBy((typeSystem, record) -> {
                     Map<String, Object> row = new HashMap<>();
@@ -113,6 +118,9 @@ public class VlasnikService implements IVlasnikService {
                     row.put("ukupnoNeplaceno", record.get("ukupnoNeplaceno").asDouble());
                     return row;
                 })
-                .all());
+                .all()
+                .stream()
+                .map(m -> (Map<String, Object>) m)
+                .collect(Collectors.toList());
     }
 }
