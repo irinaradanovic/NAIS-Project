@@ -9,7 +9,7 @@ public class FinansijskiFond {
     @Id
     private String idOriginal;
 
-    private String naziv;           // npr. "Fond za odrzavanje", "Rezervni fond"
+    private String naziv;
     private double ukupanIznos;
     private double mesecniDoprinos;
     private Boolean isAktivan;

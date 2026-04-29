@@ -48,14 +48,12 @@ public class StanarController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    /** Dodaje STANUJE_U vezu (stanar ulazi u stan sa kirijm i datumom) */
     @PostMapping("/stanovanje")
     public ResponseEntity<Void> dodajStanovanje(@RequestBody StanovanjeDTO dto) {
         stanarService.dodajStanovanje(dto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    /** Azurira mesecnu kiriju stanara u stanu (menja vrednost na grani) */
     @PutMapping("/kirija")
     public ResponseEntity<Void> azurirajKiriju(
             @RequestParam Long stanarId,
@@ -65,7 +63,6 @@ public class StanarController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    /** Uklanja STANUJE_U vezu (stanar se iseljava) */
     @DeleteMapping("/stanovanje")
     public ResponseEntity<Void> ukloniStanovanje(
             @RequestParam Long stanarId,
@@ -74,7 +71,6 @@ public class StanarController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    /** Dodaje IMA_RACUN vezu između stanara i racuna */
     @PostMapping("/dodaj-racun")
     public ResponseEntity<Void> dodajRacun(
             @RequestParam Long stanarId,
@@ -83,7 +79,6 @@ public class StanarController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    /** Oznacava racun kao placen */
     @PutMapping("/plati-racun")
     public ResponseEntity<Void> platiRacun(@RequestBody PlatiRacunDTO dto) {
         stanarService.platiRacun(dto);
@@ -112,7 +107,6 @@ public class StanarController {
         return new ResponseEntity<>(stanarService.stanariIspodProsecneKirije(), HttpStatus.OK);
     }
 
-    /** PDF izvestaj stanara sa dugovima */
     @GetMapping(value = "/export-pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> exportPdf() {
         try {

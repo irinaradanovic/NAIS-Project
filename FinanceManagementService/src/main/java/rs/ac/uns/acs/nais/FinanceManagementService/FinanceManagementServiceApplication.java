@@ -14,10 +14,4 @@ public class FinanceManagementServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(FinanceManagementServiceApplication.class, args);
     }
-
-    @Bean
-    Configuration cypherDslConfiguration() {
-        return Configuration.newConfig()
-                .withDialect(Dialect.NEO4J_5).build();
-    }
 }

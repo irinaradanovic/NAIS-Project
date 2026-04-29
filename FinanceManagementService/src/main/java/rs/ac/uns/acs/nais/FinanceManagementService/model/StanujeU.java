@@ -13,7 +13,7 @@ public class StanujeU {
     @TargetNode
     private Stan stan;
 
-    private String datumUseljenja;  // format: "yyyy-MM-dd"
+    private String datumUseljenja;
     private double mesecnaKirija;
 
     public StanujeU() {}

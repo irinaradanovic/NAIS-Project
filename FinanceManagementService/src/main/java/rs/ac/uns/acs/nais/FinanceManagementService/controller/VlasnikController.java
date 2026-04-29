@@ -43,7 +43,6 @@ public class VlasnikController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    /** Dodaje POSEDUJE vezu između vlasnika i stana */
     @PostMapping("/dodaj-stan")
     public ResponseEntity<Void> dodajStan(
             @RequestParam Long vlasnikId,
@@ -52,7 +51,6 @@ public class VlasnikController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    /** Uklanja POSEDUJE vezu između vlasnika i stana */
     @DeleteMapping("/ukloni-stan")
     public ResponseEntity<Void> ukloniStan(
             @RequestParam Long vlasnikId,

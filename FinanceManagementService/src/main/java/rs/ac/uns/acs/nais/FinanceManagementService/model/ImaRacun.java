@@ -13,8 +13,8 @@ public class ImaRacun {
     @TargetNode
     private Racun racun;
 
-    private String datumPlacanja;   // null ako nije placen
-    private Boolean isNaVreme;      // da li je placen pre roka
+    private String datumPlacanja;
+    private Boolean isNaVreme;
 
     public ImaRacun() {}
 

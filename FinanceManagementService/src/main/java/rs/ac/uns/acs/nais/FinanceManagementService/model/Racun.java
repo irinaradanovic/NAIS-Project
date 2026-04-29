@@ -9,10 +9,10 @@ public class Racun {
     @Id
     private String idOriginal;
 
-    private String tip;         // npr. "komunalije", "kirija", "struja"
+    private String tip;
     private double iznos;
-    private String datumIzdavanja;   // format: "yyyy-MM-dd"
-    private String rokPlacanja;      // format: "yyyy-MM-dd"
+    private String datumIzdavanja;
+    private String rokPlacanja;
     private Boolean isPlacen;
 
     public Racun() {}

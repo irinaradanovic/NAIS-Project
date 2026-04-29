@@ -28,10 +28,6 @@ CREATE (fond4:FinansijskiFond {
     isAktivan: false
 })
 
-// ============================================================
-// STANOVI
-// ============================================================
-
 CREATE (stan1:Stan {
     idOriginal: 'STAN-001',
     adresa: 'Bulevar Oslobodjenja 42',
@@ -89,10 +85,6 @@ CREATE (stan8:Stan {
     isZauzet: false
 })
 
-// ============================================================
-// VEZE: Stan -> FinansijskiFond (PRIPADA_FONDU)
-// ============================================================
-
 CREATE (stan1)-[:PRIPADA_FONDU]->(fond1)
 CREATE (stan1)-[:PRIPADA_FONDU]->(fond2)
 CREATE (stan2)-[:PRIPADA_FONDU]->(fond1)
@@ -105,10 +97,6 @@ CREATE (stan6)-[:PRIPADA_FONDU]->(fond3)
 CREATE (stan7)-[:PRIPADA_FONDU]->(fond1)
 CREATE (stan7)-[:PRIPADA_FONDU]->(fond4)
 CREATE (stan8)-[:PRIPADA_FONDU]->(fond1)
-
-// ============================================================
-// VLASNICI
-// ============================================================
 
 CREATE (v1:Vlasnik {
     idOriginal: 1,
@@ -151,10 +139,6 @@ CREATE (v5:Vlasnik {
     isAktivan: false
 })
 
-// ============================================================
-// VEZE: Vlasnik -> Stan (POSEDUJE)
-// ============================================================
-
 CREATE (v1)-[:POSEDUJE]->(stan1)
 CREATE (v1)-[:POSEDUJE]->(stan2)
 CREATE (v2)-[:POSEDUJE]->(stan3)
@@ -163,10 +147,6 @@ CREATE (v3)-[:POSEDUJE]->(stan5)
 CREATE (v3)-[:POSEDUJE]->(stan6)
 CREATE (v4)-[:POSEDUJE]->(stan7)
 CREATE (v5)-[:POSEDUJE]->(stan8)
-
-// ============================================================
-// RACUNI
-// ============================================================
 
 CREATE (r1:Racun {
     idOriginal: 'RAC-001',
@@ -265,10 +245,6 @@ CREATE (r12:Racun {
     isPlacen: true
 })
 
-// ============================================================
-// STANARI
-// ============================================================
-
 CREATE (st1:Stanar {
     idOriginal: 1,
     ime: 'Milan',
@@ -318,10 +294,6 @@ CREATE (st6:Stanar {
     isAktivan: true
 })
 
-// ============================================================
-// VEZE: Stanar -> Stan (STANUJE_U)
-// ============================================================
-
 CREATE (st1)-[:STANUJE_U {datumUseljenja: '2024-01-15', mesecnaKirija: 35000.0}]->(stan1)
 CREATE (st2)-[:STANUJE_U {datumUseljenja: '2023-06-01', mesecnaKirija: 28000.0}]->(stan2)
 CREATE (st3)-[:STANUJE_U {datumUseljenja: '2025-03-01', mesecnaKirija: 42000.0}]->(stan5)
@@ -329,32 +301,22 @@ CREATE (st4)-[:STANUJE_U {datumUseljenja: '2024-09-01', mesecnaKirija: 32000.0}]
 CREATE (st5)-[:STANUJE_U {datumUseljenja: '2022-11-15', mesecnaKirija: 25000.0}]->(stan7)
 CREATE (st6)-[:STANUJE_U {datumUseljenja: '2025-01-01', mesecnaKirija: 38000.0}]->(stan6)
 
-// ============================================================
-// VEZE: Stanar -> Racun (IMA_RACUN)
-// ============================================================
-
-// Milan Đorđević - stan1
 CREATE (st1)-[:IMA_RACUN {datumPlacanja: '2026-03-10', isNaVreme: true}]->(r1)
 CREATE (st1)-[:IMA_RACUN {datumPlacanja: '2026-03-18', isNaVreme: true}]->(r2)
 CREATE (st1)-[:IMA_RACUN {datumPlacanja: null, isNaVreme: false}]->(r5)
 CREATE (st1)-[:IMA_RACUN {datumPlacanja: null, isNaVreme: false}]->(r6)
 
-// Maja Simić - stan2
 CREATE (st2)-[:IMA_RACUN {datumPlacanja: null, isNaVreme: false}]->(r3)
 CREATE (st2)-[:IMA_RACUN {datumPlacanja: null, isNaVreme: false}]->(r4)
 
-// Stefan Pavlović - stan5
 CREATE (st3)-[:IMA_RACUN {datumPlacanja: null, isNaVreme: false}]->(r8)
 CREATE (st3)-[:IMA_RACUN {datumPlacanja: null, isNaVreme: false}]->(r11)
 
-// Ivana Ilić - stan4
 CREATE (st4)-[:IMA_RACUN {datumPlacanja: '2026-04-12', isNaVreme: true}]->(r7)
 CREATE (st4)-[:IMA_RACUN {datumPlacanja: '2026-04-18', isNaVreme: true}]->(r9)
 
-// Aleksandar Vasić - stan7
 CREATE (st5)-[:IMA_RACUN {datumPlacanja: null, isNaVreme: false}]->(r10)
 
-// Tamara Kostić - stan6
 CREATE (st6)-[:IMA_RACUN {datumPlacanja: '2026-04-20', isNaVreme: false}]->(r12)
 
 RETURN "Finance baza je popunjena: 5 vlasnika, 8 stanova, 6 stanara, 12 racuna, 4 fonda";
