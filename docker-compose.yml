@@ -71,5 +71,57 @@ services:
       SPRING_NEO4J_AUTHENTICATION_PASSWORD: password
     ports:
       - "8084:8084"
+
+  restaurant-timeseries-service:
+    build:
+      context: ./RestaurantTimeSeriesService
+      dockerfile: Dockerfile
+    depends_on:
+      - eureka-server
+      - influxdb
+      - redis
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_INFLUX_URL: http://influxdb:8086
+      SPRING_DATA_REDIS_HOST: redis
+    ports:
+      - "9090:9090"
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+
+  influxdb:
+    image: influxdb:2.7
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=nais
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password
+      - DOCKER_INFLUXDB_INIT_ORG=nais_org
+      - DOCKER_INFLUXDB_INIT_BUCKET=restaurant_bucket
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-auth-token
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8086/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+
 volumes:
   neo4j_data: {}
+  influxdb_data: {}
+  redis_data: {}
