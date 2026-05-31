@@ -7,4 +7,7 @@ public interface PreparationLogRepository {
     void save(PreparationLog log);
     void saveAll(List<PreparationLog> logs);
     boolean deleteByRestaurantId(String restaurantId);
+    List<PreparationLog> findAll();
+    List<PreparationLog> findAllByRestaurantId(String restaurantId);
+    List<PreparationLog> findAllByMenuItemId(String menuItemId);
 }

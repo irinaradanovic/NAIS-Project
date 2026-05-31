@@ -1,6 +1,7 @@
 package rs.ac.uns.acs.nais.RestaurantTimeSeriesService.repository;
 
 import com.influxdb.client.InfluxDBClient;
+import com.influxdb.client.QueryApi;
 import com.influxdb.client.WriteApiBlocking;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.exceptions.InfluxException;
@@ -52,5 +53,42 @@ public class PreparationLogRepositoryImpl implements PreparationLogRepository {
             log.error("Delete failed for restaurantId {}: ", restaurantId, e);
             return false;
         }
+    }
+
+    // Dodaj u importee:
+// import com.influxdb.client.QueryApi;
+
+    @Override
+    public List<PreparationLog> findAll() {
+        String fluxQuery = String.format(
+                "from(bucket: \"%s\") |> range(start: -30d) |> filter(fn: (r) => r[\"_measurement\"] == \"order_preparation_logs\")",
+                influxBucket
+        );
+        QueryApi queryApi = influxDBClient.getQueryApi();
+        return queryApi.query(fluxQuery, influxOrg, PreparationLog.class);
+    }
+
+    @Override
+    public List<PreparationLog> findAllByRestaurantId(String restaurantId) {
+        String fluxQuery = String.format(
+                "from(bucket: \"%s\") |> range(start: -30d) " +
+                        "|> filter(fn: (r) => r[\"_measurement\"] == \"order_preparation_logs\") " +
+                        "|> filter(fn: (r) => r[\"restaurantId\"] == \"%s\")",
+                influxBucket, restaurantId
+        );
+        QueryApi queryApi = influxDBClient.getQueryApi();
+        return queryApi.query(fluxQuery, influxOrg, PreparationLog.class);
+    }
+
+    @Override
+    public List<PreparationLog> findAllByMenuItemId(String menuItemId) {
+        String fluxQuery = String.format(
+                "from(bucket: \"%s\") |> range(start: -30d) " +
+                        "|> filter(fn: (r) => r[\"_measurement\"] == \"order_preparation_logs\") " +
+                        "|> filter(fn: (r) => r[\"itemId\"] == \"%s\")", // Pretpostavka da se polje u bazi zove itemId
+                influxBucket, menuItemId
+        );
+        QueryApi queryApi = influxDBClient.getQueryApi();
+        return queryApi.query(fluxQuery, influxOrg, PreparationLog.class);
     }
 }

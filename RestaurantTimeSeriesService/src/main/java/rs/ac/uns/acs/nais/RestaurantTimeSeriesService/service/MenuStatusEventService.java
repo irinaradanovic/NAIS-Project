@@ -30,4 +30,12 @@ public class MenuStatusEventService {
     public boolean deleteByMenuId(String menuId) {
         return repository.deleteByMenuId(menuId);
     }
+
+    public List<MenuStatusEvent> findAll() {
+        return repository.findAll();
+    }
+
+    public List<MenuStatusEvent> findAllByMenuId(String menuId) {
+        return repository.findAllByMenuId(menuId);
+    }
 }

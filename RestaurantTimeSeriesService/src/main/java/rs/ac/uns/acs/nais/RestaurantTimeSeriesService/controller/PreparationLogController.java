@@ -36,4 +36,19 @@ public class PreparationLogController {
                 ? ResponseEntity.ok(true)
                 : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
     }
+
+    @GetMapping
+    public ResponseEntity<List<PreparationLog>> findAll() {
+        return ResponseEntity.ok(service.findAll());
+    }
+
+    @GetMapping("/restaurant/{restaurantId}")
+    public ResponseEntity<List<PreparationLog>> findAllByRestaurantId(@PathVariable String restaurantId) {
+        return ResponseEntity.ok(service.findAllByRestaurantId(restaurantId));
+    }
+
+    @GetMapping("/menu-item/{menuItemId}")
+    public ResponseEntity<List<PreparationLog>> findAllByMenuItemId(@PathVariable String menuItemId) {
+        return ResponseEntity.ok(service.findAllByMenuItemId(menuItemId));
+    }
 }

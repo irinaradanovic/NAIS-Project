@@ -7,4 +7,6 @@ public interface MenuStatusEventRepository {
     void save(MenuStatusEvent event);
     void saveAll(List<MenuStatusEvent> events);
     boolean deleteByMenuId(String menuId);
+    List<MenuStatusEvent> findAll();
+    List<MenuStatusEvent> findAllByMenuId(String menuId);
 }

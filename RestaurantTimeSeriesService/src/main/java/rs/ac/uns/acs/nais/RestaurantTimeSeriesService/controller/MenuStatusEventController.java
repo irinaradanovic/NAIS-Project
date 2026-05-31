@@ -36,4 +36,14 @@ public class MenuStatusEventController {
                 ? ResponseEntity.ok(true)
                 : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
     }
+
+    @GetMapping
+    public ResponseEntity<List<MenuStatusEvent>> findAll() {
+        return ResponseEntity.ok(service.findAll());
+    }
+
+    @GetMapping("/menu/{menuId}")
+    public ResponseEntity<List<MenuStatusEvent>> findAllByMenuId(@PathVariable String menuId) {
+        return ResponseEntity.ok(service.findAllByMenuId(menuId));
+    }
 }

@@ -1,6 +1,7 @@
 package rs.ac.uns.acs.nais.RestaurantTimeSeriesService.repository;
 
 import com.influxdb.client.InfluxDBClient;
+import com.influxdb.client.QueryApi;
 import com.influxdb.client.WriteApiBlocking;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.exceptions.InfluxException;
@@ -52,5 +53,27 @@ public class MenuStatusEventRepositoryImpl implements MenuStatusEventRepository 
             log.error("Delete failed for menuId {}: ", menuId, e);
             return false;
         }
+    }
+
+    @Override
+    public List<MenuStatusEvent> findAll() {
+        String fluxQuery = String.format(
+                "from(bucket: \"%s\") |> range(start: -30d) |> filter(fn: (r) => r[\"_measurement\"] == \"menu_status_events\")",
+                influxBucket
+        );
+        QueryApi queryApi = influxDBClient.getQueryApi();
+        return queryApi.query(fluxQuery, influxOrg, MenuStatusEvent.class);
+    }
+
+    @Override
+    public List<MenuStatusEvent> findAllByMenuId(String menuId) {
+        String fluxQuery = String.format(
+                "from(bucket: \"%s\") |> range(start: -30d) " +
+                        "|> filter(fn: (r) => r[\"_measurement\"] == \"menu_status_events\") " +
+                        "|> filter(fn: (r) => r[\"menuId\"] == \"%s\")",
+                influxBucket, menuId
+        );
+        QueryApi queryApi = influxDBClient.getQueryApi();
+        return queryApi.query(fluxQuery, influxOrg, MenuStatusEvent.class);
     }
 }

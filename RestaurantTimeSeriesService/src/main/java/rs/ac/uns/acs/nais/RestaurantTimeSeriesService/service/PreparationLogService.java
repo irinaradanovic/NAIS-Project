@@ -30,4 +30,16 @@ public class PreparationLogService {
     public boolean deleteByRestaurantId(String restaurantId) {
         return repository.deleteByRestaurantId(restaurantId);
     }
+
+    public List<PreparationLog> findAll() {
+        return repository.findAll();
+    }
+
+    public List<PreparationLog> findAllByRestaurantId(String restaurantId) {
+        return repository.findAllByRestaurantId(restaurantId);
+    }
+
+    public List<PreparationLog> findAllByMenuItemId(String menuItemId) {
+        return repository.findAllByMenuItemId(menuItemId);
+    }
 }
