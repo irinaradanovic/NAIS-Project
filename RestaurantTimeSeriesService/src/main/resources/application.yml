@@ -17,6 +17,15 @@ spring:
     swagger-ui:
       path: /swagger-ui.html
 
+  data:
+    redis:
+      host: redis
+      port: 6379
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000
+
 eureka:
   client:
     service-url:
