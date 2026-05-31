@@ -34,6 +34,10 @@ public class DataSeedingService implements CommandLineRunner{
 
     @Override
     public void run(String... args) throws Exception {
+        if (isDatabaseAlreadySeeded()) {
+            log.info("InfluxDB already has data. Skipping seeding.");
+            return;
+        }
         log.info("Start seeding data...");
 
         WriteApiBlocking writeApi = influxDBClient.getWriteApiBlocking();
@@ -172,6 +176,23 @@ public class DataSeedingService implements CommandLineRunner{
             log.info("Inserted {} preparation logs and {} menu events to InfluxDB", logs.size(), events.size());
         } catch (Exception e) {
             log.error("Error while inserting into InfluxDB: ", e);
+        }
+    }
+
+    private boolean isDatabaseAlreadySeeded() {
+        try {
+            String fluxQuery = String.format(
+                    "from(bucket: \"%s\") |> range(start: -40d) |> limit(n: 1)",
+                    influxBucket
+            );
+
+            var queryApi = influxDBClient.getQueryApi();
+            var results = queryApi.query(fluxQuery, influxOrg);
+
+            return !results.isEmpty();
+        } catch (Exception e) {
+            log.error("Error while checking InfluxDB state: ", e);
+            return false;
         }
     }
 }

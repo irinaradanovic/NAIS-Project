@@ -12,6 +12,10 @@ spring:
     url: http://influxdb:8086
     user: nais
     password: password
+  springdoc:
+    packages-to-scan: rs.ac.uns.acs.nais.RestaurantTimeSeriesService.controller
+    swagger-ui:
+      path: /swagger-ui.html
 
 eureka:
   client:

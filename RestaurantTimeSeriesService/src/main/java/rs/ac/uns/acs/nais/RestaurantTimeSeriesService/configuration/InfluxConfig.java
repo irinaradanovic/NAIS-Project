@@ -14,13 +14,13 @@ public class InfluxConfig {
     private String token;
 
     @Value("${spring.influx.org}")
-    private String org;
+    private String influxOrg;
 
     @Value("${spring.influx.bucket}")
-    private String bucket;
+    private String influxBucket;
 
     @Bean
     public InfluxDBClient influxDBClient() {
-        return InfluxDBClientFactory.create(url, token.toCharArray(), org, bucket);
+        return InfluxDBClientFactory.create(url, token.toCharArray(), influxOrg, influxBucket);
     }
 }
