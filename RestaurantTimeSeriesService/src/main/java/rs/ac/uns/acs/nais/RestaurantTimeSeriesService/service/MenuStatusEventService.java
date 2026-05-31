@@ -1,8 +1,8 @@
 package rs.ac.uns.acs.nais.RestaurantTimeSeriesService.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.dto.MenuCategoryActivityDTO;
 import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.model.MenuStatusEvent;
 import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.repository.MenuStatusEventRepositoryImpl;
 
@@ -37,5 +37,9 @@ public class MenuStatusEventService {
 
     public List<MenuStatusEvent> findAllByMenuId(String menuId) {
         return repository.findAllByMenuId(menuId);
+    }
+
+    public List<MenuCategoryActivityDTO> categoryActivity(int  minNumberOfVersions) {
+        return repository.findFrequentCategoryChanges(minNumberOfVersions);
     }
 }

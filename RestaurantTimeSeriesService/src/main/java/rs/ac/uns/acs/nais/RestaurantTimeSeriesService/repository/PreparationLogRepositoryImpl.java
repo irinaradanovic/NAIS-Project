@@ -9,10 +9,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
+import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.dto.LocationCategoryComparisonDTO;
+import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.dto.RestaurantAvgPreparationDTO;
 import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.model.PreparationLog;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -91,5 +94,65 @@ public class PreparationLogRepositoryImpl implements PreparationLogRepository {
                 influxBucket, menuItemId
         );
         return influxDBClient.getQueryApi().query(fluxQuery, influxOrg, PreparationLog.class);
+    }
+
+
+    @Override
+    public List<RestaurantAvgPreparationDTO> findTop3FastestRestaurants() {
+        String flux = String.format("""
+        from(bucket: "%s")
+          |> range(start: -14d)
+          |> filter(fn: (r) => r["_measurement"] == "order_preparation_logs")
+          |> filter(fn: (r) => r["_field"] == "actualDurationMinutes")
+          |> group(columns: ["restaurantId", "restaurantName"])
+          |> filter(fn: (r) => r["_value"] > 0.0)
+          |> mean(column: "_value")
+          |> map(fn: (r) => ({r with avgDurationMinutes: r._value}))
+          |> group()
+          |> sort(columns: ["avgDurationMinutes"], desc: false)
+          |> limit(n: 3)
+        """, influxBucket);
+
+        List<RestaurantAvgPreparationDTO> result = new ArrayList<>();
+        influxDBClient.getQueryApi().query(flux, influxOrg).forEach(table ->
+                table.getRecords().forEach(record -> {
+                    RestaurantAvgPreparationDTO dto = new RestaurantAvgPreparationDTO();
+                    dto.setRestaurantId((String) record.getValueByKey("restaurantId"));
+                    dto.setRestaurantName((String) record.getValueByKey("restaurantName"));
+                    dto.setAvgDurationMinutes((Double) record.getValueByKey("avgDurationMinutes"));
+                    result.add(dto);
+                })
+        );
+        return result;
+    }
+
+    @Override
+    public List<LocationCategoryComparisonDTO> compareLocationsByCategory(
+            String restaurantId1, String restaurantId2) {
+
+        String flux = String.format("""
+        from(bucket: "%s")
+          |> range(start: -30d)
+          |> filter(fn: (r) => r["_measurement"] == "order_preparation_logs")
+          |> filter(fn: (r) => r["restaurantId"] == "%s" or r["restaurantId"] == "%s")
+          |> filter(fn: (r) => r["_field"] == "actualDurationMinutes")
+          |> group(columns: ["restaurantName", "categoryName"])
+          |> mean(column: "_value")
+          |> map(fn: (r) => ({r with avgDurationMinutes: r._value}))
+          |> group()
+          |> sort(columns: ["categoryName", "avgDurationMinutes"], desc: false)
+        """, influxBucket, restaurantId1, restaurantId2);
+
+        List<LocationCategoryComparisonDTO> result = new ArrayList<>();
+        influxDBClient.getQueryApi().query(flux, influxOrg).forEach(table ->
+                table.getRecords().forEach(record -> {
+                    LocationCategoryComparisonDTO dto = new LocationCategoryComparisonDTO();
+                    dto.setRestaurantName((String) record.getValueByKey("restaurantName"));
+                    dto.setCategoryName((String) record.getValueByKey("categoryName"));
+                    dto.setAvgDurationMinutes((Double) record.getValueByKey("avgDurationMinutes"));
+                    result.add(dto);
+                })
+        );
+        return result;
     }
 }

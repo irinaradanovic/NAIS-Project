@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.dto.LocationCategoryComparisonDTO;
+import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.dto.RestaurantAvgPreparationDTO;
 import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.model.PreparationLog;
 import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.service.PreparationLogService;
 
@@ -50,5 +52,18 @@ public class PreparationLogController {
     @GetMapping("/menu-item/{menuItemId}")
     public ResponseEntity<List<PreparationLog>> findAllByMenuItemId(@PathVariable String menuItemId) {
         return ResponseEntity.ok(service.findAllByMenuItemId(menuItemId));
+    }
+
+
+    @GetMapping("/top3-fastest-restaurants")
+    public ResponseEntity<List<RestaurantAvgPreparationDTO>> top3FastestRestaurants() {
+        return ResponseEntity.ok(service.findTop3FastestRestaurants());
+    }
+
+    @GetMapping("/compare-locations")
+    public ResponseEntity<List<LocationCategoryComparisonDTO>> compareLocations(
+            @RequestParam String restaurantId1,
+            @RequestParam String restaurantId2) {
+        return ResponseEntity.ok(service.compareLocationsByCategory(restaurantId1, restaurantId2));
     }
 }
