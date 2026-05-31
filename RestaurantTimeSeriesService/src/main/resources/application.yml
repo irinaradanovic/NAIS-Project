@@ -1,0 +1,27 @@
+server:
+  port: 9090
+
+
+spring:
+  application:
+    name: restaurant-timeseries-service
+  influx:
+    token: my-super-secret-auth-token
+    bucket: restaurant_bucket
+    org: nais_org
+    url: http://influxdb:8086
+    user: nais
+    password: password
+  springdoc:
+    packages-to-scan: rs.ac.uns.acs.nais.RestaurantTimeSeriesService.controller
+    swagger-ui:
+      path: /swagger-ui.html
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+      healthcheck:
+        enabled: true
+  instance:
+    prefer-ip-address: true
