@@ -1,5 +1,5 @@
 CREATE (gondola:Restaurant {
-    id: randomUUID(),
+    id: 'res-gondola-ns-1111',
     name: 'Gondola Novi Sad',
     address: 'Bulevar Mihajla Pupina 18',
     contact: '021/123-4567'
@@ -29,6 +29,19 @@ CREATE (gondola)-[:HAS_MENU {active: false}]->(gondola_m1)
 CREATE (gondola)-[:HAS_MENU {active: true}]->(gondola_m2)
 CREATE (gondola)-[:HAS_MENU {active: true}]->(gondola_mU)
 
+// Druga lokacija za Gondolu
+CREATE (gondolaCentar:Restaurant {
+    id: 'res-gondola-centar-2222',
+    name: 'Gondola Centar',
+    address: 'Zmaj Jovina 4',
+    contact: '021/987-654'
+})
+
+// Povezujemo je na postojece menije
+CREATE (gondolaCentar)-[:HAS_MENU {active: false}]->(gondola_m1)
+CREATE (gondolaCentar)-[:HAS_MENU {active: true}]->(gondola_m2)
+CREATE (gondolaCentar)-[:HAS_MENU {active: true}]->(gondola_mU)
+
 CREATE (gondola_m1_cat1:Category {id: randomUUID(), name: 'Pizze'})
 CREATE (gondola_m1_cat2:Category {id: randomUUID(), name: 'Paste'})
 CREATE (gondola_m1_cat3:Category {id: randomUUID(), name: 'Deserti'})
@@ -38,19 +51,19 @@ CREATE (gondola_m1)-[:HAS_CATEGORY {order: 2}]->(gondola_m1_cat2)
 CREATE (gondola_m1)-[:HAS_CATEGORY {order: 3}]->(gondola_m1_cat3)
 
 CREATE (gondola_m1_i1:MenuItem {
-    id: randomUUID(),
+    id: 'item-margarita-g1',
     name: 'Margarita', price: 850.0, calories: 800,
     description: 'Pelat, mocarela, bosiljak', quantity: 350, unit: 'g',
     timeMin: 10, timeMax: 15
 })
 CREATE (gondola_m1_i2:MenuItem {
-    id: randomUUID(),
+    id: 'item-carbonara-g1',
     name: 'Carbonara', price: 1100.0, calories: 1200,
     description: 'Slanina, jaja, parmezan', quantity: 400, unit: 'g',
     timeMin: 15, timeMax: 20
 })
 CREATE (gondola_m1_i3:MenuItem {
-    id: randomUUID(),
+    id: 'item-tiramisu-g1',
     name: 'Tiramisu', price: 400.0, calories: 500,
     description: 'Kafa, maskarpone, piskote', quantity: 150, unit: 'g',
     timeMin: 5, timeMax: 5
@@ -71,43 +84,43 @@ CREATE (gondola_m2)-[:HAS_CATEGORY {order: 3}]->(gondola_m2_cat3)
 CREATE (gondola_m2)-[:HAS_CATEGORY {order: 4}]->(gondola_m2_cat4)
 
 CREATE (gondola_m2_i1:MenuItem {
-    id: randomUUID(),
+    id: 'item-margarita-g2',
     name: 'Margarita', price: 950.0, calories: 800,
     description: 'Pelat, mocarela, svezi bosiljak', quantity: 350, unit: 'g',
     timeMin: 10, timeMax: 15
 })
 CREATE (gondola_m2_i2:MenuItem {
-    id: randomUUID(),
+    id: 'item-quattro-formaggi',
     name: 'Quattro Formaggi', price: 1150.0, calories: 950,
     description: 'Cetiri vrste sira', quantity: 380, unit: 'g',
     timeMin: 10, timeMax: 15
 })
 CREATE (gondola_m2_i3:MenuItem {
-    id: randomUUID(),
+    id: 'item-carbonara-g2',
     name: 'Carbonara', price: 1200.0, calories: 1200,
     description: 'Slanina, jaja, parmezan', quantity: 400, unit: 'g',
     timeMin: 15, timeMax: 20
 })
 CREATE (gondola_m2_i4:MenuItem {
-    id: randomUUID(),
+    id: 'item-penne-arrabiata',
     name: 'Penne Arrabiata', price: 1050.0, calories: 900,
     description: 'Ljuta paradajz salsa, beli luk', quantity: 380, unit: 'g',
     timeMin: 12, timeMax: 18
 })
 CREATE (gondola_m2_i5:MenuItem {
-    id: randomUUID(),
+    id: 'item-tiramisu-g2',
     name: 'Tiramisu', price: 450.0, calories: 500,
     description: 'Kafa, maskarpone, piskote', quantity: 150, unit: 'g',
     timeMin: 5, timeMax: 5
 })
 CREATE (gondola_m2_i6:MenuItem {
-    id: randomUUID(),
+    id: 'item-panna-cotta',
     name: 'Panna Cotta', price: 380.0, calories: 420,
     description: 'Krem desert sa karamelom', quantity: 130, unit: 'g',
     timeMin: 3, timeMax: 5
 })
 CREATE (gondola_m2_i7:MenuItem {
-    id: randomUUID(),
+    id: 'item-cezar-salata',
     name: 'Cezar Salata', price: 850.0, calories: 420,
     description: 'Romaine zelena salata, parmezan, krutoni', quantity: 300, unit: 'g',
     timeMin: 7, timeMax: 10
@@ -128,19 +141,19 @@ CREATE (gondola_mU)-[:HAS_CATEGORY {order: 1}]->(gondola_mU_cat1)
 CREATE (gondola_mU)-[:HAS_CATEGORY {order: 2}]->(gondola_mU_cat2)
 
 CREATE (gondola_mU_i1:MenuItem {
-    id: randomUUID(),
+    id: 'item-jagnjetina',
     name: 'Jagnjetina sa ruzmarinom', price: 2200.0, calories: 1400,
     description: 'Pecena jagnjetina sa povrcem', quantity: 500, unit: 'g',
     timeMin: 40, timeMax: 60
 })
 CREATE (gondola_mU_i2:MenuItem {
-    id: randomUUID(),
+    id: 'item-uskrsnja-pogaca',
     name: 'Uskrsnja Pogaca', price: 350.0, calories: 320,
     description: 'Domaca pogaca sa sirom', quantity: 200, unit: 'g',
     timeMin: 5, timeMax: 8
 })
 CREATE (gondola_mU_i3:MenuItem {
-    id: randomUUID(),
+    id: 'item-cokoladni-kolac',
     name: 'Cokoladni Kolac', price: 480.0, calories: 580,
     description: 'Topli cokoladni kolac sa sladoledom', quantity: 180, unit: 'g',
     timeMin: 8, timeMax: 12
@@ -151,7 +164,7 @@ CREATE (gondola_mU_cat1)-[:INCLUDES_ITEM {discount: 0.0}]->(gondola_mU_i2)
 CREATE (gondola_mU_cat2)-[:INCLUDES_ITEM {discount: 0.15}]->(gondola_mU_i3)
 
 CREATE (kfc:Restaurant {
-    id: randomUUID(),
+    id: 'res-kfc-ns-3333',
     name: 'KFC Novi Sad',
     address: 'Bulevar Oslobođenja 119',
     contact: '021/222-3033'
@@ -196,6 +209,21 @@ CREATE (kfc)-[:HAS_MENU {active: true}]->(kfc_m3)
 CREATE (kfc)-[:HAS_MENU {active: true}]->(kfc_m4)
 CREATE (kfc)-[:HAS_MENU {active: true}]->(kfc_m5)
 
+// Druga lokacija za KFC
+CREATE (kfcCentar:Restaurant {
+    id: 'res-kfc-centar-4444',
+    name: 'KFC Centar',
+    address: 'Pozorišni Trg 2',
+    contact: '021/222-4044'
+})
+
+// Povezujemo na iste KFC menije
+CREATE (kfcCentar)-[:HAS_MENU {active: false}]->(kfc_m1)
+CREATE (kfcCentar)-[:HAS_MENU {active: false}]->(kfc_m2)
+CREATE (kfcCentar)-[:HAS_MENU {active: true}]->(kfc_m3)
+CREATE (kfcCentar)-[:HAS_MENU {active: true}]->(kfc_m4)
+CREATE (kfcCentar)-[:HAS_MENU {active: true}]->(kfc_m5)
+
 CREATE (kfc_m1_cat1:Category {id: randomUUID(), name: 'Kofice'})
 CREATE (kfc_m1_cat2:Category {id: randomUUID(), name: 'Burgeri'})
 
@@ -203,13 +231,13 @@ CREATE (kfc_m1)-[:HAS_CATEGORY {order: 1}]->(kfc_m1_cat1)
 CREATE (kfc_m1)-[:HAS_CATEGORY {order: 2}]->(kfc_m1_cat2)
 
 CREATE (kfc_m1_i1:MenuItem {
-    id: randomUUID(),
+    id: 'item-kofice-3kom-v1',
     name: 'Original Recipe Kofice 3kom', price: 750.0, calories: 620,
     description: 'Originalni KFC recept', quantity: 3, unit: 'kom',
     timeMin: 8, timeMax: 12
 })
 CREATE (kfc_m1_i2:MenuItem {
-    id: randomUUID(),
+    id: 'item-zinger-v1',
     name: 'Zinger Burger', price: 650.0, calories: 540,
     description: 'Ljuti piletina burger', quantity: 1, unit: 'kom',
     timeMin: 5, timeMax: 8
@@ -227,19 +255,19 @@ CREATE (kfc_m2)-[:HAS_CATEGORY {order: 2}]->(kfc_m2_cat2)
 CREATE (kfc_m2)-[:HAS_CATEGORY {order: 3}]->(kfc_m2_cat3)
 
 CREATE (kfc_m2_i1:MenuItem {
-    id: randomUUID(),
+    id: 'item-kofice-3kom-v2',
     name: 'Original Recipe Kofice 3kom', price: 780.0, calories: 620,
     description: 'Originalni KFC recept', quantity: 3, unit: 'kom',
     timeMin: 8, timeMax: 12
 })
 CREATE (kfc_m2_i2:MenuItem {
-    id: randomUUID(),
+    id: 'item-zinger-v2',
     name: 'Zinger Burger', price: 680.0, calories: 540,
     description: 'Ljuti piletina burger', quantity: 1, unit: 'kom',
     timeMin: 5, timeMax: 8
 })
 CREATE (kfc_m2_i3:MenuItem {
-    id: randomUUID(),
+    id: 'item-twister-v2',
     name: 'Twister Wrap', price: 720.0, calories: 490,
     description: 'Piletina, salata, majonez u tortilja', quantity: 1, unit: 'kom',
     timeMin: 5, timeMax: 8
@@ -260,49 +288,49 @@ CREATE (kfc_m3)-[:HAS_CATEGORY {order: 3}]->(kfc_m3_cat3)
 CREATE (kfc_m3)-[:HAS_CATEGORY {order: 4}]->(kfc_m3_cat4)
 
 CREATE (kfc_m3_i1:MenuItem {
-    id: randomUUID(),
+    id: 'item-kofice-3kom-v3',
     name: 'Original Recipe Kofice 3kom', price: 820.0, calories: 620,
     description: 'Originalni KFC recept, hrskava korica', quantity: 3, unit: 'kom',
     timeMin: 8, timeMax: 12
 })
 CREATE (kfc_m3_i2:MenuItem {
-    id: randomUUID(),
+    id: 'item-hot-wings-6kom',
     name: 'Hot Wings 6kom', price: 880.0, calories: 710,
     description: 'Ljuta pileca krila', quantity: 6, unit: 'kom',
     timeMin: 10, timeMax: 15
 })
 CREATE (kfc_m3_i3:MenuItem {
-    id: randomUUID(),
+    id: 'item-zinger-v3',
     name: 'Zinger Burger', price: 720.0, calories: 540,
     description: 'Ljuti piletina burger sa zelenom salatom', quantity: 1, unit: 'kom',
     timeMin: 5, timeMax: 8
 })
 CREATE (kfc_m3_i4:MenuItem {
-    id: randomUUID(),
+    id: 'item-double-down',
     name: 'Double Down', price: 850.0, calories: 680,
     description: 'Dupla piletina umesto hleba', quantity: 1, unit: 'kom',
     timeMin: 8, timeMax: 12
 })
 CREATE (kfc_m3_i5:MenuItem {
-    id: randomUUID(),
+    id: 'item-twister-v3',
     name: 'Twister Wrap', price: 750.0, calories: 490,
     description: 'Piletina, salata, majonez u tortilja', quantity: 1, unit: 'kom',
     timeMin: 5, timeMax: 8
 })
 CREATE (kfc_m3_i6:MenuItem {
-    id: randomUUID(),
+    id: 'item-coleslaw',
     name: 'Coleslaw', price: 220.0, calories: 180,
     description: 'Kremasta kupus salata', quantity: 150, unit: 'g',
     timeMin: 1, timeMax: 2
 })
 CREATE (kfc_m3_i7:MenuItem {
-    id: randomUUID(),
+    id: 'item-pomfrit',
     name: 'Pomfrit', price: 280.0, calories: 340,
     description: 'Hrskavi pomfrit', quantity: 150, unit: 'g',
     timeMin: 3, timeMax: 5
 })
 CREATE (kfc_m3_i_8:MenuItem {
-    id: randomUUID(),
+    id: 'item-grander-burger',
     name: 'Grander Burger', price: 780.0, calories: 750,
     description: 'Veliki burger sa slaninom', quantity: 1, unit: 'kom',
     timeMin: 8, timeMax: 12
@@ -321,19 +349,19 @@ CREATE (kfc_m4_cat1:Category {id: randomUUID(), name: 'Sladoledi'})
 CREATE (kfc_m4)-[:HAS_CATEGORY {order: 1}]->(kfc_m4_cat1)
 
 CREATE (kfc_m4_i1:MenuItem {
-    id: randomUUID(),
+    id: 'item-soft-vanila',
     name: 'Soft Sladoled Vanila', price: 180.0, calories: 220,
     description: 'Kremasti soft sladoled', quantity: 1, unit: 'kom',
     timeMin: 1, timeMax: 2
 })
 CREATE (kfc_m4_i2:MenuItem {
-    id: randomUUID(),
+    id: 'item-sundae-cokolada',
     name: 'Sundae Cokolada', price: 250.0, calories: 380,
     description: 'Sladoled sa cokoladnim prelivom', quantity: 1, unit: 'kom',
     timeMin: 2, timeMax: 3
 })
 CREATE (kfc_m4_i3:MenuItem {
-    id: randomUUID(),
+    id: 'item-milkshake-jagoda',
     name: 'Milkshake Jagoda', price: 320.0, calories: 450,
     description: 'Kremasti milkshake od jagode', quantity: 400, unit: 'ml',
     timeMin: 3, timeMax: 5
@@ -347,19 +375,19 @@ CREATE (kfc_m5_cat1:Category {id: randomUUID(), name: 'Egg'})
 CREATE (kfc_m5)-[:HAS_CATEGORY {order: 1}]->(kfc_m5_cat1)
 
 CREATE (kfc_m5_i1:MenuItem {
-    id: randomUUID(),
+    id: 'item-egg-burger',
     name: 'Egg Burger', price: 420.0, calories: 480,
     description: 'Jaje, sir, slanina u pecivo', quantity: 1, unit: 'kom',
     timeMin: 5, timeMax: 8
 })
 CREATE (kfc_m5_i2:MenuItem {
-    id: randomUUID(),
+    id: 'item-hash-brown',
     name: 'Hash Brown', price: 180.0, calories: 250,
     description: 'Hrskavi krompir kroketi', quantity: 2, unit: 'kom',
     timeMin: 3, timeMax: 5
 })
 CREATE (kfc_m5_i3:MenuItem {
-    id: randomUUID(),
+    id: 'item-dorucak-box',
     name: 'Dorucak Box', price: 680.0, calories: 720,
     description: 'Egg burger + hash brown + kafa', quantity: 1, unit: 'kom',
     timeMin: 7, timeMax: 10
@@ -370,7 +398,7 @@ CREATE (kfc_m5_cat1)-[:INCLUDES_ITEM {discount: 0.0}]->(kfc_m5_i2)
 CREATE (kfc_m5_cat1)-[:INCLUDES_ITEM {discount: 0.1}]->(kfc_m5_i3)
 
 CREATE (loft:Restaurant {
-    id: randomUUID(),
+    id: 'res-loft-5555',
     name: 'Loft Coffee & Food',
     address: 'Njegoševa 2',
     contact: '021/300-400'
@@ -392,13 +420,13 @@ CREATE (loft_m1)-[:HAS_CATEGORY {order: 1}]->(loft_cat1)
 CREATE (loft_m1)-[:HAS_CATEGORY {order: 2}]->(loft_cat2)
 
 CREATE (loft_i1:MenuItem {
-    id: randomUUID(),
+    id: 'item-cappuccino',
     name: 'Cappuccino', price: 280.0, calories: 120,
     description: 'Espresso sa mlečnom penom', quantity: 200, unit: 'ml',
     timeMin: 3, timeMax: 5
 })
 CREATE (loft_i2:MenuItem {
-    id: randomUUID(),
+    id: 'item-avocado-toast',
     name: 'Avocado Toast', price: 720.0, calories: 450,
     description: 'Integralni hleb, avokado, jaje', quantity: 250, unit: 'g',
     timeMin: 10, timeMax: 12
@@ -408,7 +436,7 @@ CREATE (loft_cat1)-[:INCLUDES_ITEM {discount: 0.0}]->(loft_i1)
 CREATE (loft_cat2)-[:INCLUDES_ITEM {discount: 0.1}]->(loft_i2)
 
 CREATE (lanterna:Restaurant {
-    id: randomUUID(),
+    id: 'res-lanterna-6666',
     name: 'Lanterna',
     address: 'Dunavska 10',
     contact: '021/555-666'
@@ -428,19 +456,19 @@ CREATE (lanterna_cat1:Category {id: randomUUID(), name: 'Specijaliteti kuće'})
 CREATE (lanterna_m1)-[:HAS_CATEGORY {order: 1}]->(lanterna_cat1)
 
 CREATE (lanterna_i1:MenuItem {
-    id: randomUUID(),
+    id: 'item-lasagne-emiliane',
     name: 'Lasagne Emiliane', price: 1350.0, calories: 1100,
     description: 'Domaće lazanje sa bolonjeze sosom', quantity: 450, unit: 'g',
     timeMin: 20, timeMax: 30
 })
-CREATE (lanterna_i2:MenuItem {id: randomUUID(), name: 'Saltimbocca', price: 1600.0, calories: 950, description: 'Teletina sa pršutom', quantity: 350, unit: 'g', timeMin: 15, timeMax: 25})
-CREATE (lanterna_i3:MenuItem {id: randomUUID(), name: 'Osso Buco', price: 1850.0, calories: 1100, description: 'Dinstana teletina', quantity: 400, unit: 'g', timeMin: 30, timeMax: 50})
+CREATE (lanterna_i2:MenuItem {id: 'item-saltimbocca', name: 'Saltimbocca', price: 1600.0, calories: 950, description: 'Teletina sa pršutom', quantity: 350, unit: 'g', timeMin: 15, timeMax: 25})
+CREATE (lanterna_i3:MenuItem {id: 'item-osso-buco', name: 'Osso Buco', price: 1850.0, calories: 1100, description: 'Dinstana teletina', quantity: 400, unit: 'g', timeMin: 30, timeMax: 50})
 
 CREATE (lanterna_cat1)-[:INCLUDES_ITEM {discount: 0.1, discountFrom: date('2026-04-01'), discountTo: date('2026-05-01')}]->(lanterna_i1)
 CREATE (lanterna_cat1)-[:INCLUDES_ITEM {discount: 0.2, discountFrom: date('2026-04-01'), discountTo: date('2026-05-01')}]->(lanterna_i2)
 CREATE (lanterna_cat1)-[:INCLUDES_ITEM {discount: 0.25, discountFrom: date('2026-04-01'), discountTo: date('2026-05-01')}]->(lanterna_i3)
 
-CREATE (petrus:Restaurant {id: randomUUID(), name: 'Petrus Caffe', address: 'Trg Slobode 4', contact: '021/444-555'})
+CREATE (petrus:Restaurant {id: 'res-petrus-7777', name: 'Petrus Caffe', address: 'Trg Slobode 4', contact: '021/444-555'})
 CREATE (petrus_m:Menu {id: randomUUID(), menuId: 808, version: 1, name: 'Glavni Meni', description: 'Ekskluzivna ponuda', type: 'STANDARD', activationDate: date('2026-01-01')})
 CREATE (petrus)-[:HAS_MENU {active: true}]->(petrus_m)
 
@@ -452,13 +480,13 @@ CREATE (petrus_m)-[:HAS_CATEGORY {order: 2}]->(p_cat2)
 
 
 // Skupa jela dizu prosek restorana
-CREATE (p_i1:MenuItem {id: randomUUID(), name: 'Ribeye Stejk', price: 3500.0, calories: 1200, timeMin: 25, timeMax: 40})
-CREATE (p_i2:MenuItem {id: randomUUID(), name: 'T-Bone Stejk', price: 4200.0, calories: 1500, timeMin: 30, timeMax: 45})
+CREATE (p_i1:MenuItem {id: 'item-ribeye-stejk', name: 'Ribeye Stejk', price: 3500.0, calories: 1200, timeMin: 25, timeMax: 40})
+CREATE (p_i2:MenuItem {id: 'item-tbone-stejk', name: 'T-Bone Stejk', price: 4200.0, calories: 1500, timeMin: 30, timeMax: 45})
 
 
 // Jeftina jela prave "Underpriced Category" za kompleksni upit
-CREATE (p_i3:MenuItem {id: randomUUID(), name: 'Omlet sa sirom', price: 450.0, calories: 600, timeMin: 5, timeMax: 10})
-CREATE (p_i4:MenuItem {id: randomUUID(), name: 'Prženice', price: 380.0, calories: 700, timeMin: 5, timeMax: 10})
+CREATE (p_i3:MenuItem {id: 'item-omlet-sa-sirom', name: 'Omlet sa sirom', price: 450.0, calories: 600, timeMin: 5, timeMax: 10})
+CREATE (p_i4:MenuItem {id: 'item-przenice', name: 'Prženice', price: 380.0, calories: 700, timeMin: 5, timeMax: 10})
 
 MATCH (c:Category {name: 'Premium Stejkovi'})
 MATCH (i:MenuItem {name: 'T-Bone Stejk'})
@@ -473,4 +501,4 @@ MATCH (i:MenuItem {name: 'Prženice'})
 CREATE (c)-[:INCLUDES_ITEM {discount: 0.0}]->(i);
 
 
-RETURN "Baza je popunjena sa 5 restorana";
+RETURN "Baza je popunjena sa 7 restorana";
