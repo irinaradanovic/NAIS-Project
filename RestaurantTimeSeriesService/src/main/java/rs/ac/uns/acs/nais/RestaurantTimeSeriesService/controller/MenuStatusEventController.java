@@ -23,11 +23,11 @@ public class MenuStatusEventController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/batch")
+ /*   @PostMapping("/batch")
     public ResponseEntity<Void> saveAll(@RequestBody List<MenuStatusEvent> events) {
         service.saveAll(events);
         return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
+    } */
 
     @DeleteMapping("/menu/{menuId}")
     public ResponseEntity<Boolean> deleteByMenuId(@PathVariable String menuId) {

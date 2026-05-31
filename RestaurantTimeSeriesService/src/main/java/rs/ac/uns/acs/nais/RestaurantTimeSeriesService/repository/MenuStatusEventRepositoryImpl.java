@@ -58,22 +58,25 @@ public class MenuStatusEventRepositoryImpl implements MenuStatusEventRepository 
     @Override
     public List<MenuStatusEvent> findAll() {
         String fluxQuery = String.format(
-                "from(bucket: \"%s\") |> range(start: -30d) |> filter(fn: (r) => r[\"_measurement\"] == \"menu_status_events\")",
+                "from(bucket: \"%s\") " +
+                        "|> range(start: -30d) " +
+                        "|> filter(fn: (r) => r[\"_measurement\"] == \"menu_status_events\") " +
+                        "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")",
                 influxBucket
         );
-        QueryApi queryApi = influxDBClient.getQueryApi();
-        return queryApi.query(fluxQuery, influxOrg, MenuStatusEvent.class);
+        return influxDBClient.getQueryApi().query(fluxQuery, influxOrg, MenuStatusEvent.class);
     }
 
     @Override
     public List<MenuStatusEvent> findAllByMenuId(String menuId) {
         String fluxQuery = String.format(
-                "from(bucket: \"%s\") |> range(start: -30d) " +
+                "from(bucket: \"%s\") " +
+                        "|> range(start: -30d) " +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"menu_status_events\") " +
-                        "|> filter(fn: (r) => r[\"menuId\"] == \"%s\")",
+                        "|> filter(fn: (r) => r[\"menuId\"] == \"%s\") " +
+                        "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")",
                 influxBucket, menuId
         );
-        QueryApi queryApi = influxDBClient.getQueryApi();
-        return queryApi.query(fluxQuery, influxOrg, MenuStatusEvent.class);
+        return influxDBClient.getQueryApi().query(fluxQuery, influxOrg, MenuStatusEvent.class);
     }
 }

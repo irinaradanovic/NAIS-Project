@@ -55,40 +55,41 @@ public class PreparationLogRepositoryImpl implements PreparationLogRepository {
         }
     }
 
-    // Dodaj u importee:
-// import com.influxdb.client.QueryApi;
-
     @Override
     public List<PreparationLog> findAll() {
         String fluxQuery = String.format(
-                "from(bucket: \"%s\") |> range(start: -30d) |> filter(fn: (r) => r[\"_measurement\"] == \"order_preparation_logs\")",
+                "from(bucket: \"%s\") " +
+                        "|> range(start: -30d) " +
+                        "|> filter(fn: (r) => r[\"_measurement\"] == \"order_preparation_logs\") " +
+                        "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")",
                 influxBucket
         );
-        QueryApi queryApi = influxDBClient.getQueryApi();
-        return queryApi.query(fluxQuery, influxOrg, PreparationLog.class);
+        return influxDBClient.getQueryApi().query(fluxQuery, influxOrg, PreparationLog.class);
     }
 
     @Override
     public List<PreparationLog> findAllByRestaurantId(String restaurantId) {
         String fluxQuery = String.format(
-                "from(bucket: \"%s\") |> range(start: -30d) " +
+                "from(bucket: \"%s\") " +
+                        "|> range(start: -30d) " +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"order_preparation_logs\") " +
-                        "|> filter(fn: (r) => r[\"restaurantId\"] == \"%s\")",
+                        "|> filter(fn: (r) => r[\"restaurantId\"] == \"%s\") " +
+                        "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")",
                 influxBucket, restaurantId
         );
-        QueryApi queryApi = influxDBClient.getQueryApi();
-        return queryApi.query(fluxQuery, influxOrg, PreparationLog.class);
+        return influxDBClient.getQueryApi().query(fluxQuery, influxOrg, PreparationLog.class);
     }
 
     @Override
     public List<PreparationLog> findAllByMenuItemId(String menuItemId) {
         String fluxQuery = String.format(
-                "from(bucket: \"%s\") |> range(start: -30d) " +
+                "from(bucket: \"%s\") " +
+                        "|> range(start: -30d) " +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"order_preparation_logs\") " +
-                        "|> filter(fn: (r) => r[\"itemId\"] == \"%s\")", // Pretpostavka da se polje u bazi zove itemId
+                        "|> filter(fn: (r) => r[\"menuItemId\"] == \"%s\") " +  // ← ISPRAVLJENO
+                        "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")",
                 influxBucket, menuItemId
         );
-        QueryApi queryApi = influxDBClient.getQueryApi();
-        return queryApi.query(fluxQuery, influxOrg, PreparationLog.class);
+        return influxDBClient.getQueryApi().query(fluxQuery, influxOrg, PreparationLog.class);
     }
 }

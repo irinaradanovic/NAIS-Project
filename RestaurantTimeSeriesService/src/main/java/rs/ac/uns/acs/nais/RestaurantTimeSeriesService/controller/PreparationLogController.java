@@ -23,11 +23,11 @@ public class PreparationLogController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/batch")
+ /*   @PostMapping("/batch")
     public ResponseEntity<Void> saveAll(@RequestBody List<PreparationLog> logs) {
         service.saveAll(logs);
         return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
+    } */
 
     @DeleteMapping("/restaurant/{restaurantId}")
     public ResponseEntity<Boolean> deleteByRestaurantId(@PathVariable String restaurantId) {
