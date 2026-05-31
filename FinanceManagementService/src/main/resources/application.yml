@@ -9,11 +9,12 @@ spring:
       password: password
   application:
     name: finance-management-service
-  #rabbitmq:
-   # host: localhost
-    #port: 5672
-    #username: guest
-    #password: guest
+
+  influx:
+    url: http://influxdb:8086
+    token: my-super-secret-auth-token
+    org: nais_org
+    bucket: restaurant_bucket
 
 eureka:
   client:
@@ -23,7 +24,3 @@ eureka:
         enabled: true
   instance:
     prefer-ip-address: true
-
-
-
-
