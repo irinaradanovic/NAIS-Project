@@ -3,6 +3,8 @@ package rs.ac.uns.acs.nais.RestaurantTimeSeriesService.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.dto.LocationCategoryComparisonDTO;
+import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.dto.RestaurantAvgPreparationDTO;
 import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.model.PreparationLog;
 import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.repository.PreparationLogRepositoryImpl;
 
@@ -41,5 +43,14 @@ public class PreparationLogService {
 
     public List<PreparationLog> findAllByMenuItemId(String menuItemId) {
         return repository.findAllByMenuItemId(menuItemId);
+    }
+
+    public List<RestaurantAvgPreparationDTO> findTop3FastestRestaurants() {
+        return repository.findTop3FastestRestaurants();
+    }
+
+    public List<LocationCategoryComparisonDTO> compareLocationsByCategory(
+            String restaurantId1, String restaurantId2) {
+        return repository.compareLocationsByCategory(restaurantId1, restaurantId2);
     }
 }

@@ -1,10 +1,10 @@
 package rs.ac.uns.acs.nais.RestaurantTimeSeriesService.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.dto.MenuCategoryActivityDTO;
 import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.model.MenuStatusEvent;
 import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.service.MenuStatusEventService;
 
@@ -45,5 +45,12 @@ public class MenuStatusEventController {
     @GetMapping("/menu/{menuId}")
     public ResponseEntity<List<MenuStatusEvent>> findAllByMenuId(@PathVariable String menuId) {
         return ResponseEntity.ok(service.findAllByMenuId(menuId));
+    }
+
+
+    @GetMapping("/category-activity/{minNumberOfVersions}")
+    public ResponseEntity<List<MenuCategoryActivityDTO>> categoryActivity(
+            @PathVariable int minNumberOfVersions) {
+        return ResponseEntity.ok(service.categoryActivity(minNumberOfVersions));
     }
 }

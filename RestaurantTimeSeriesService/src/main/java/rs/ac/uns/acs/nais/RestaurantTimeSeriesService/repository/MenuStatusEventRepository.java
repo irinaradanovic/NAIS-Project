@@ -1,5 +1,6 @@
 package rs.ac.uns.acs.nais.RestaurantTimeSeriesService.repository;
 
+import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.dto.MenuCategoryActivityDTO;
 import rs.ac.uns.acs.nais.RestaurantTimeSeriesService.model.MenuStatusEvent;
 import java.util.List;
 
@@ -9,4 +10,5 @@ public interface MenuStatusEventRepository {
     boolean deleteByMenuId(String menuId);
     List<MenuStatusEvent> findAll();
     List<MenuStatusEvent> findAllByMenuId(String menuId);
+    List<MenuCategoryActivityDTO> findFrequentCategoryChanges(int minVersionThreshold);
 }
