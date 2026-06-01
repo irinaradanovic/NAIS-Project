@@ -89,7 +89,14 @@ public class PlacanjeInfluxRepository {
 
     // SLOZENI UPITI
 
-    // Upit 1: Ukupan iznos i broj placanja po tipu racuna u poslednjih N dana
+    /* Provera upisa podataka
+    from(bucket: "restaurant_bucket")
+  |> range(start: -365d)
+  |> filter(fn: (r) => r["_measurement"] == "finance_payments")
+  |> limit(n: 10)
+     */
+
+    // Upit 1: Ukupan iznos placanja po tipu racuna u poslednjih N dana
     public List<Map<String, Object>> ukupnoPoTipuRacuna(int poslednjiDani) {
         String flux = String.format(
                 "from(bucket: \"%s\") " +
@@ -101,6 +108,16 @@ public class PlacanjeInfluxRepository {
                         "|> map(fn: (r) => ({tipRacuna: r[\"tipRacuna\"], ukupanIznos: r[\"_value\"]})) " +
                         "|> sort(columns: [\"ukupanIznos\"], desc: true)",
                 bucket, poslednjiDani
+                /*
+                from(bucket: "restaurant_bucket")
+  |> range(start: -365d)
+  |> filter(fn: (r) => r["_measurement"] == "finance_payments")
+  |> filter(fn: (r) => r["_field"] == "iznos")
+  |> group(columns: ["tipRacuna"])
+  |> sum(column: "_value")
+  |> map(fn: (r) => ({tipRacuna: r["tipRacuna"], ukupanIznos: r["_value"]}))
+  |> sort(columns: ["ukupanIznos"], desc: true)
+                 */
         );
         QueryApi queryApi = influxDBClient.getQueryApi();
         return queryApi.query(flux, org).stream()
@@ -125,6 +142,17 @@ public class PlacanjeInfluxRepository {
                         "|> map(fn: (r) => ({stanarId: r[\"stanarId\"], stanarEmail: r[\"stanarEmail\"], prosecnoKasnjenje: r[\"_value\"]})) " +
                         "|> sort(columns: [\"prosecnoKasnjenje\"], desc: true)",
                 bucket
+                /*
+                from(bucket: "restaurant_bucket")
+  |> range(start: -365d)
+  |> filter(fn: (r) => r["_measurement"] == "finance_payments")
+  |> filter(fn: (r) => r["_field"] == "daniKasnjenja")
+  |> filter(fn: (r) => r["_value"] > 0.0)
+  |> group(columns: ["stanarId", "stanarEmail"])
+  |> mean(column: "_value")
+  |> map(fn: (r) => ({stanarId: r["stanarId"], stanarEmail: r["stanarEmail"], prosecnoKasnjenje: r["_value"]}))
+  |> sort(columns: ["prosecnoKasnjenje"], desc: true)
+                 */
         );
         QueryApi queryApi = influxDBClient.getQueryApi();
         return queryApi.query(flux, org).stream()
@@ -144,10 +172,17 @@ public class PlacanjeInfluxRepository {
                         "|> range(start: -365d) " +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"finance_payments\") " +
                         "|> filter(fn: (r) => r[\"_field\"] == \"iznos\") " +
-                        "|> filter(fn: (r) => r[\"naVreme\"] == \"1.0\") " +
                         "|> aggregateWindow(every: 30d, fn: sum, createEmpty: false) " +
                         "|> map(fn: (r) => ({period: string(v: r[\"_time\"]), ukupanPrihod: r[\"_value\"]}))",
                 bucket
+                /*
+                from(bucket: "restaurant_bucket")
+  |> range(start: -365d)
+  |> filter(fn: (r) => r["_measurement"] == "finance_payments")
+  |> filter(fn: (r) => r["_field"] == "iznos")
+  |> aggregateWindow(every: 30d, fn: sum, createEmpty: false)
+  |> map(fn: (r) => ({period: string(v: r["_time"]), ukupanPrihod: r["_value"]}))
+                 */
         );
         QueryApi queryApi = influxDBClient.getQueryApi();
         return queryApi.query(flux, org).stream()

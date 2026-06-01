@@ -89,6 +89,13 @@ public class FondTransakcijaInfluxRepository {
 
     // SLOZENI UPITI
 
+    /* Provera upisa podataka
+    from(bucket: "restaurant_bucket")
+  |> range(start: -365d)
+  |> filter(fn: (r) => r["_measurement"] == "finance_fond_transakcije")
+  |> limit(n: 10)
+     */
+
     // Upit 1: Bilans fonda (uplate - isplate) po svakom fondu
     public List<Map<String, Object>> bilansPOFondu() {
         String flux = String.format(
@@ -99,7 +106,7 @@ public class FondTransakcijaInfluxRepository {
                         "|> filter(fn: (r) => r[\"tipTransakcije\"] == \"UPLATA\") " +
                         "|> group(columns: [\"fondNaziv\"]) " +
                         "|> sum(column: \"_value\") " +
-                        "|> map(fn: (r) => ({fondNaziv: r[\"fondNaziv\"], ukupnoUplate: r[\"_value\"]}))\n" +
+                        "|> rename(columns: {_value: \"ukupnoUplate\"})\n" +
                         "isplate = from(bucket: \"%s\") " +
                         "|> range(start: -365d) " +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"finance_fond_transakcije\") " +
@@ -107,11 +114,34 @@ public class FondTransakcijaInfluxRepository {
                         "|> filter(fn: (r) => r[\"tipTransakcije\"] == \"ISPLATA\") " +
                         "|> group(columns: [\"fondNaziv\"]) " +
                         "|> sum(column: \"_value\") " +
-                        "|> map(fn: (r) => ({fondNaziv: r[\"fondNaziv\"], ukupnoIsplate: r[\"_value\"]}))\n" +
+                        "|> rename(columns: {_value: \"ukupnoIsplate\"})\n" +
                         "join(tables: {u: uplate, i: isplate}, on: [\"fondNaziv\"]) " +
-                        "|> map(fn: (r) => ({fondNaziv: r[\"fondNaziv\"], bilans: r[\"ukupnoUplate_u\"] - r[\"ukupnoIsplate_i\"], uplate: r[\"ukupnoUplate_u\"], isplate: r[\"ukupnoIsplate_i\"]})) " +
+                        "|> map(fn: (r) => ({fondNaziv: r[\"fondNaziv\"], uplate: r[\"ukupnoUplate\"], isplate: r[\"ukupnoIsplate\"], bilans: r[\"ukupnoUplate\"] - r[\"ukupnoIsplate\"]})) " +
                         "|> sort(columns: [\"bilans\"], desc: true)",
                 bucket, bucket
+                /*
+                uplate = from(bucket: "restaurant_bucket")
+  |> range(start: -365d)
+  |> filter(fn: (r) => r["_measurement"] == "finance_fond_transakcije")
+  |> filter(fn: (r) => r["_field"] == "iznos")
+  |> filter(fn: (r) => r["tipTransakcije"] == "UPLATA")
+  |> group(columns: ["fondNaziv"])
+  |> sum(column: "_value")
+  |> rename(columns: {_value: "ukupnoUplate"})
+
+isplate = from(bucket: "restaurant_bucket")
+  |> range(start: -365d)
+  |> filter(fn: (r) => r["_measurement"] == "finance_fond_transakcije")
+  |> filter(fn: (r) => r["_field"] == "iznos")
+  |> filter(fn: (r) => r["tipTransakcije"] == "ISPLATA")
+  |> group(columns: ["fondNaziv"])
+  |> sum(column: "_value")
+  |> rename(columns: {_value: "ukupnoIsplate"})
+
+join(tables: {u: uplate, i: isplate}, on: ["fondNaziv"])
+  |> map(fn: (r) => ({fondNaziv: r["fondNaziv"], uplate: r["ukupnoUplate"], isplate: r["ukupnoIsplate"], bilans: r["ukupnoUplate"] - r["ukupnoIsplate"]}))
+  |> sort(columns: ["bilans"], desc: true)
+                 */
         );
         QueryApi queryApi = influxDBClient.getQueryApi();
         return queryApi.query(flux, org).stream()
@@ -135,6 +165,14 @@ public class FondTransakcijaInfluxRepository {
                         "|> aggregateWindow(every: 30d, fn: sum, createEmpty: false) " +
                         "|> map(fn: (r) => ({period: string(v: r[\"_time\"]), ukupanObrt: r[\"_value\"]}))",
                 bucket
+                /*
+                from(bucket: "restaurant_bucket")
+  |> range(start: -365d)
+  |> filter(fn: (r) => r["_measurement"] == "finance_fond_transakcije")
+  |> filter(fn: (r) => r["_field"] == "iznos")
+  |> aggregateWindow(every: 30d, fn: sum, createEmpty: false)
+  |> map(fn: (r) => ({period: string(v: r["_time"]), ukupanObrt: r["_value"]}))
+                 */
         );
         QueryApi queryApi = influxDBClient.getQueryApi();
         return queryApi.query(flux, org).stream()
@@ -146,11 +184,11 @@ public class FondTransakcijaInfluxRepository {
                 .toList();
     }
 
-    // Upit 3: Fondovi sa visokim isplatama u poslednjih 30 dana (iznad praga)
+    // Upit 3: Fondovi sa visokim isplatama u poslednjih godinu dana iznad praga
     public List<Map<String, Object>> fondoviSaVisokimIsplatama(double pragIsplate) {
         String flux = String.format(
                 "from(bucket: \"%s\") " +
-                        "|> range(start: -30d) " +
+                        "|> range(start: -365d) " +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"finance_fond_transakcije\") " +
                         "|> filter(fn: (r) => r[\"_field\"] == \"iznos\") " +
                         "|> filter(fn: (r) => r[\"tipTransakcije\"] == \"ISPLATA\") " +
@@ -160,6 +198,18 @@ public class FondTransakcijaInfluxRepository {
                         "|> map(fn: (r) => ({fondId: r[\"fondId\"], fondNaziv: r[\"fondNaziv\"], ukupnoIsplaceno: r[\"_value\"]})) " +
                         "|> sort(columns: [\"ukupnoIsplaceno\"], desc: true)",
                 bucket, pragIsplate
+                /*
+                from(bucket: "restaurant_bucket")
+  |> range(start: -365d)
+  |> filter(fn: (r) => r["_measurement"] == "finance_fond_transakcije")
+  |> filter(fn: (r) => r["_field"] == "iznos")
+  |> filter(fn: (r) => r["tipTransakcije"] == "ISPLATA")
+  |> group(columns: ["fondId", "fondNaziv"])
+  |> sum(column: "_value")
+  |> filter(fn: (r) => r["_value"] > 50000.0)
+  |> map(fn: (r) => ({fondId: r["fondId"], fondNaziv: r["fondNaziv"], ukupnoIsplaceno: r["_value"]}))
+  |> sort(columns: ["ukupnoIsplaceno"], desc: true)
+                 */
         );
         QueryApi queryApi = influxDBClient.getQueryApi();
         return queryApi.query(flux, org).stream()
