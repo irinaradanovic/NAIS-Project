@@ -72,11 +72,19 @@ services:
     depends_on:
       - eureka-server
       - neo4j
+      - influxdb
+      - redis
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_NEO4J_URI: bolt://neo4j:7687
       SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
       SPRING_NEO4J_AUTHENTICATION_PASSWORD: password
+      SPRING_INFLUX_URL: http://influxdb:8086
+      SPRING_INFLUX_TOKEN: my-super-secret-auth-token
+      SPRING_INFLUX_ORG: nais_org
+      SPRING_INFLUX_BUCKET: order_bucket
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
     ports:
       - "8084:8084"
 
@@ -121,12 +129,15 @@ services:
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-auth-token
     volumes:
       - influxdb_data:/var/lib/influxdb2
+      
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8086/health" ]
       interval: 10s
       timeout: 5s
       retries: 5
-
+    
+      
+      
 
 
 volumes:
