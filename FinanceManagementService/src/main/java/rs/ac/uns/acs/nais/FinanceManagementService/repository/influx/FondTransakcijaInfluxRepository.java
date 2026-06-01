@@ -217,7 +217,7 @@ join(tables: {u: uplate, i: isplate}, on: ["fondNaziv"])
                 .map(record -> Map.<String, Object>of(
                         "fondId", String.valueOf(record.getValueByKey("fondId")),
                         "fondNaziv", String.valueOf(record.getValueByKey("fondNaziv")),
-                        "ukupnoIsplaceno", record.getValue()
+                        "ukupnoIsplaceno", record.getValueByKey("ukupnoIsplaceno")
                 ))
                 .toList();
     }
