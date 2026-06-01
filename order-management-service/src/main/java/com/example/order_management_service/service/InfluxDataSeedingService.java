@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class InfluxDataSeedingService implements CommandLineRunner {
 
-    private static final int METRICS_COUNT = 1000;
+    private static final int METRICS_COUNT = 2000;
     private final InfluxDBClient influxDBClient;
 
     @Value("${spring.influx.bucket}")
@@ -40,7 +40,7 @@ public class InfluxDataSeedingService implements CommandLineRunner {
     };
 
     private static final String[] ORDER_TYPES = {"DELIVERY", "PICKUP"};
-    private static final String[] PAYMENT_METHODS = {"CASH", "CARD", "ONLINE"};
+    private static final String[] PAYMENT_METHODS = {"CASH", "CARD", "CARD+CASH"};
     private static final String[] CHANNELS = {"WEB", "MOBILE", "PHONE"};
     private static final String[] CITIES = {"Novi Sad", "Beograd", "Nis", "Subotica", "Kragujevac"};
 
@@ -67,7 +67,7 @@ public class InfluxDataSeedingService implements CommandLineRunner {
         Instant now = Instant.now();
 
         for (int i = 0; i < METRICS_COUNT; i++) {
-            String orderId = "order" +(1000 + random.nextInt(9000));
+            String orderId = "order" +(1000 + i);
             String status = pick(STATUSES);
             String orderType = pick(ORDER_TYPES);
             String city = pick(CITIES);
