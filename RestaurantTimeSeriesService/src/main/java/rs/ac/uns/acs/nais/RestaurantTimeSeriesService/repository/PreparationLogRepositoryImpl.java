@@ -64,7 +64,8 @@ public class PreparationLogRepositoryImpl implements PreparationLogRepository {
                 "from(bucket: \"%s\") " +
                         "|> range(start: -30d) " +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"order_preparation_logs\") " +
-                        "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")",
+                        "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")" +
+                        "|> sort(columns: [\"_time\"], desc: true)",
                 influxBucket
         );
         return influxDBClient.getQueryApi().query(fluxQuery, influxOrg, PreparationLog.class);
@@ -77,7 +78,9 @@ public class PreparationLogRepositoryImpl implements PreparationLogRepository {
                         "|> range(start: -30d) " +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"order_preparation_logs\") " +
                         "|> filter(fn: (r) => r[\"restaurantId\"] == \"%s\") " +
-                        "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")",
+                        "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")" +
+                        "|> group() " +
+                        "|> sort(columns: [\"_time\"], desc: true)",
                 influxBucket, restaurantId
         );
         return influxDBClient.getQueryApi().query(fluxQuery, influxOrg, PreparationLog.class);
@@ -90,7 +93,9 @@ public class PreparationLogRepositoryImpl implements PreparationLogRepository {
                         "|> range(start: -30d) " +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"order_preparation_logs\") " +
                         "|> filter(fn: (r) => r[\"menuItemId\"] == \"%s\") " +  // ← ISPRAVLJENO
-                        "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")",
+                        "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")" +
+                        "|> group() " +
+                        "|> sort(columns: [\"_time\"], desc: true)",
                 influxBucket, menuItemId
         );
         return influxDBClient.getQueryApi().query(fluxQuery, influxOrg, PreparationLog.class);

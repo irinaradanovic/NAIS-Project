@@ -62,7 +62,8 @@ public class MenuStatusEventRepositoryImpl implements MenuStatusEventRepository 
                 "from(bucket: \"%s\") " +
                         "|> range(start: -30d) " +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"menu_status_events\") " +
-                        "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")",
+                        "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")" +
+                        "|> sort(columns: [\"_time\"], desc: true)",
                 influxBucket
         );
         return influxDBClient.getQueryApi().query(fluxQuery, influxOrg, MenuStatusEvent.class);
@@ -75,7 +76,9 @@ public class MenuStatusEventRepositoryImpl implements MenuStatusEventRepository 
                         "|> range(start: -30d) " +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"menu_status_events\") " +
                         "|> filter(fn: (r) => r[\"menuId\"] == \"%s\") " +
-                        "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")",
+                        "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")" +
+                        "|> group() " +
+                        "|> sort(columns: [\"_time\"], desc: true)",
                 influxBucket, menuId
         );
         return influxDBClient.getQueryApi().query(fluxQuery, influxOrg, MenuStatusEvent.class);
