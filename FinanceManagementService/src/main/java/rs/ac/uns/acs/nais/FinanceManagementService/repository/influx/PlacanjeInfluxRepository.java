@@ -144,7 +144,7 @@ public class PlacanjeInfluxRepository {
                         "|> range(start: -365d) " +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"finance_payments\") " +
                         "|> filter(fn: (r) => r[\"_field\"] == \"iznos\") " +
-                        "|> filter(fn: (r) => r[\"naVreme\"] == \"1.0\" or r[\"naVreme\"] == \"1\") " +
+                        "|> filter(fn: (r) => r[\"naVreme\"] == \"1.0\") " +
                         "|> aggregateWindow(every: 30d, fn: sum, createEmpty: false) " +
                         "|> map(fn: (r) => ({period: string(v: r[\"_time\"]), ukupanPrihod: r[\"_value\"]}))",
                 bucket
