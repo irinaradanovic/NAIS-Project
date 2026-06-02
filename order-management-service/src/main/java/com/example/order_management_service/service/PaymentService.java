@@ -9,6 +9,7 @@ import com.example.order_management_service.dto.UpdatePaymentDto;
 import com.example.order_management_service.model.Payment;
 import com.example.order_management_service.repository.OrderRepository;
 import com.example.order_management_service.repository.PaymentRepository;
+import com.example.order_management_service.repository.PaymentRepositoryAnalytics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
+    private final PaymentRepositoryAnalytics paymentRepositoryAnalytics;
 
     public PaymentResponseDto create(CreatePaymentDto dto) {
         Payment payment = new Payment();
@@ -72,15 +74,15 @@ public class PaymentService {
         paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new RuntimeException("Payment not found"));
 
-        paymentRepository.replacePaymentForOrder(orderId, paymentId);
+        paymentRepositoryAnalytics.replacePaymentForOrder(orderId, paymentId);
     }
 
     public Long updatePaymentStatusBeforeDate(String currentStatus, String newStatus, LocalDateTime beforeDate) {
-        return paymentRepository.updatePaymentStatusBeforeDate(currentStatus, newStatus, beforeDate);
+        return paymentRepositoryAnalytics.updatePaymentStatusBeforeDate(currentStatus, newStatus, beforeDate);
     }
 
     public List<PaymentMethodRevenueDto> getRevenueByPaymentMethod(Double minAmount) {
-        return paymentRepository.findRevenueByPaymentMethod(minAmount)
+        return paymentRepositoryAnalytics.findRevenueByPaymentMethod(minAmount)
                 .stream()
                 .map(row -> new PaymentMethodRevenueDto(
                         row.getMethod(),
@@ -91,7 +93,7 @@ public class PaymentService {
     }
 
     public List<PaymentStatusAverageDto> getPaidPaymentAverageByOrderStatus(Long minPayments) {
-        return paymentRepository.findPaidPaymentAverageByOrderStatus(minPayments)
+        return paymentRepositoryAnalytics.findPaidPaymentAverageByOrderStatus(minPayments)
                 .stream()
                 .map(row -> new PaymentStatusAverageDto(
                         row.getOrderStatus(),
@@ -102,7 +104,7 @@ public class PaymentService {
     }
 
     public List<ArticleRevenueByPaymentMethodDto> getArticleRevenueByPaymentMethod(String method) {
-        return paymentRepository.findArticleRevenueByPaymentMethod(method)
+        return paymentRepositoryAnalytics.findArticleRevenueByPaymentMethod(method)
                 .stream()
                 .map(row -> new ArticleRevenueByPaymentMethodDto(
                         row.getArticleName(),

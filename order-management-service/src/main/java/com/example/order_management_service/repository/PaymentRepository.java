@@ -1,6 +1,7 @@
 package com.example.order_management_service.repository;
 
 import com.example.order_management_service.model.Payment;
+import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +13,7 @@ import java.util.UUID;
 
 @Repository
 public interface PaymentRepository extends Neo4jRepository<Payment, UUID> {
+    
 
     @Query("MATCH (p:Payment) WHERE p.id = $id DETACH DELETE p")
     void deleteById(@Param("id") UUID id);

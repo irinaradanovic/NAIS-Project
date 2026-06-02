@@ -26,21 +26,6 @@ CREATE (o3:Order {
   address: 'Futoska 25'
 })
 
-CREATE (o1)-[:HAS_ARTICLE {quantity: 2}]->(a1)
-CREATE (o1)-[:HAS_ARTICLE {quantity: 2}]->(a2)
-
-CREATE (o2)-[:HAS_ARTICLE {quantity: 1}]->(a3)
-CREATE (o2)-[:HAS_ARTICLE {quantity: 1}]->(a4)
-
-CREATE (o3)-[:HAS_ARTICLE {quantity: 1}]->(a5)
-
-CREATE (i1:Invoice { id: randomUUID(), price: 2100.0, issueDate: date('2026-04-01') })
-CREATE (i2:Invoice { id: randomUUID(), price: 900.0,  issueDate: date('2026-04-02') })
-CREATE (i3:Invoice { id: randomUUID(), price: 1200.0, issueDate: date('2026-04-03') })
-
-CREATE (o1)-[:HAS_INVOICE]->(i1)
-CREATE (o2)-[:HAS_INVOICE]->(i2)
-CREATE (o3)-[:HAS_INVOICE]->(i3)
 
 CREATE (p1:Payment {
   id: randomUUID(),
@@ -52,7 +37,7 @@ CREATE (p1:Payment {
 CREATE (p2:Payment {
   id: randomUUID(),
   method: 'CASH',
-  status: 'PENDING',
+  status: 'PAID',
   amount: 900.0,
   paymentDate: localdatetime('2026-04-02T12:35:00')
 })
@@ -63,7 +48,32 @@ CREATE (p3:Payment {
   amount: 1200.0,
   paymentDate: localdatetime('2026-04-03T18:20:00')
 })
+CREATE (p4:Payment {
+  id: randomUUID(),
+  method: 'CASH',
+  status: 'PAID',
+  amount: 1500.0,
+  paymentDate: localdatetime('2026-04-03T19:00:00')
+})
+CREATE (p5:Payment {
+  id: randomUUID(),
+  method: 'CASH',
+  status: 'PENDING',
+  amount: 3000.0,
+  paymentDate: localdatetime('2026-04-04T10:00:00')
+})
+
 
 CREATE (o1)-[:HAS_PAYMENT]->(p1)
 CREATE (o2)-[:HAS_PAYMENT]->(p2)
 CREATE (o3)-[:HAS_PAYMENT]->(p3)
+CREATE (o2)-[:HAS_PAYMENT]->(p4)
+CREATE (o1)-[:HAS_PAYMENT]->(p5)
+
+CREATE (o1)-[:HAS_ARTICLE {quantity: 2}]->(a1)
+CREATE (o1)-[:HAS_ARTICLE {quantity: 2}]->(a2)
+
+CREATE (o2)-[:HAS_ARTICLE {quantity: 1}]->(a3)
+CREATE (o2)-[:HAS_ARTICLE {quantity: 1}]->(a4)
+
+CREATE (o3)-[:HAS_ARTICLE {quantity: 1}]->(a5)
