@@ -41,3 +41,29 @@ CREATE (i3:Invoice { id: randomUUID(), price: 1200.0, issueDate: date('2026-04-0
 CREATE (o1)-[:HAS_INVOICE]->(i1)
 CREATE (o2)-[:HAS_INVOICE]->(i2)
 CREATE (o3)-[:HAS_INVOICE]->(i3)
+
+CREATE (p1:Payment {
+  id: randomUUID(),
+  method: 'CARD',
+  status: 'PAID',
+  amount: 2100.0,
+  paymentDate: localdatetime('2026-04-01T10:05:00')
+})
+CREATE (p2:Payment {
+  id: randomUUID(),
+  method: 'CASH',
+  status: 'PENDING',
+  amount: 900.0,
+  paymentDate: localdatetime('2026-04-02T12:35:00')
+})
+CREATE (p3:Payment {
+  id: randomUUID(),
+  method: 'CARD',
+  status: 'PAID',
+  amount: 1200.0,
+  paymentDate: localdatetime('2026-04-03T18:20:00')
+})
+
+CREATE (o1)-[:HAS_PAYMENT]->(p1)
+CREATE (o2)-[:HAS_PAYMENT]->(p2)
+CREATE (o3)-[:HAS_PAYMENT]->(p3)

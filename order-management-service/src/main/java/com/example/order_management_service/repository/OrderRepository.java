@@ -26,6 +26,15 @@ public interface OrderRepository extends Neo4jRepository<Order, UUID> {
             "DELETE r")
     void removeArticleFromOrder(@Param("orderId") UUID orderId, @Param("articleId") UUID articleId);
 
+    @Query("MATCH (o:Order)-[r:HAS_ARTICLE]->(a:Article) " +
+            "WHERE o.id = $orderId AND a.id = $articleId " +
+            "WITH r " +
+            "SET r.quantity = $quantity " +
+            "RETURN count(r)")
+    Long updateArticleQuantity(@Param("orderId") UUID orderId,
+                               @Param("articleId") UUID articleId,
+                               @Param("quantity") Integer quantity);
+
     @Query("MATCH (o:Order),(i:Invoice) " +
             "WHERE o.id = $orderId AND i.id = $invoiceId " +
             "CREATE (o)-[:HAS_INVOICE]->(i)")

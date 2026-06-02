@@ -31,4 +31,7 @@ public class Order {
 
     @Relationship(type = "HAS_INVOICE")
     private Invoice invoice;
+
+    @Relationship(type = "HAS_PAYMENT")
+    private Payment payment;
 }

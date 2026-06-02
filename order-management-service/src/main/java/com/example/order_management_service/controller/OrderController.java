@@ -63,6 +63,14 @@ public class OrderController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{orderId}/articles/{articleId}/quantity")
+    public ResponseEntity<Long> updateArticleQuantity(
+            @PathVariable UUID orderId,
+            @PathVariable UUID articleId,
+            @RequestParam Integer quantity) {
+        return ResponseEntity.ok(orderService.updateArticleQuantity(orderId, articleId, quantity));
+    }
+
     @PostMapping("/{orderId}/invoices/{invoiceId}")
     public ResponseEntity<Void> addInvoice(@PathVariable UUID orderId, @PathVariable UUID invoiceId) {
         orderService.addInvoice(orderId, invoiceId);

@@ -70,6 +70,10 @@ public class OrderService {
         orderRepository.removeArticleFromOrder(orderId, articleId);
     }
 
+    public Long updateArticleQuantity(UUID orderId, UUID articleId, Integer quantity) {
+        return orderRepository.updateArticleQuantity(orderId, articleId, quantity);
+    }
+
     public List<Article> getArticles(UUID orderId) {
         return articleRepository.findByOrderId(orderId);
     }
