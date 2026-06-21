@@ -124,7 +124,7 @@ public class PlacanjeInfluxRepository {
                 .flatMap(table -> table.getRecords().stream())
                 .map(record -> Map.<String, Object>of(
                         "tipRacuna", record.getValueByKey("tipRacuna"),
-                        "ukupanIznos", record.getValue()
+                        "ukupanIznos", record.getValueByKey("ukupanIznos")
                 ))
                 .toList();
     }
@@ -160,7 +160,7 @@ public class PlacanjeInfluxRepository {
                 .map(record -> Map.<String, Object>of(
                         "stanarId", String.valueOf(record.getValueByKey("stanarId")),
                         "stanarEmail", String.valueOf(record.getValueByKey("stanarEmail")),
-                        "prosecnoKasnjenjeDana", record.getValue()
+                        "prosecnoKasnjenjeDana", record.getValueByKey("prosecnoKasnjenje")
                 ))
                 .toList();
     }
@@ -171,25 +171,29 @@ public class PlacanjeInfluxRepository {
                 "from(bucket: \"%s\") " +
                         "|> range(start: -365d) " +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"finance_payments\") " +
-                        "|> filter(fn: (r) => r[\"_field\"] == \"iznos\") " +
-                        "|> aggregateWindow(every: 30d, fn: sum, createEmpty: false) " +
-                        "|> map(fn: (r) => ({period: string(v: r[\"_time\"]), ukupanPrihod: r[\"_value\"]}))",
+                        "|> filter(fn: (r) => r[\"_field\"] == \"iznos\" or r[\"_field\"] == \"naVreme\") " +
+                        "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\") " +
+                        "|> filter(fn: (r) => r[\"naVreme\"] == 1.0) " +
+                        "|> aggregateWindow(every: 30d, fn: sum, createEmpty: false, column: \"iznos\") " +
+                        "|> map(fn: (r) => ({period: string(v: r[\"_time\"]), ukupanPrihodNaVreme: r[\"iznos\"]}))",
                 bucket
                 /*
                 from(bucket: "restaurant_bucket")
   |> range(start: -365d)
   |> filter(fn: (r) => r["_measurement"] == "finance_payments")
-  |> filter(fn: (r) => r["_field"] == "iznos")
-  |> aggregateWindow(every: 30d, fn: sum, createEmpty: false)
-  |> map(fn: (r) => ({period: string(v: r["_time"]), ukupanPrihod: r["_value"]}))
+  |> filter(fn: (r) => r["_field"] == "iznos" or r["_field"] == "naVreme")
+  |> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+  |> filter(fn: (r) => r["naVreme"] == 1.0)
+  |> aggregateWindow(every: 30d, fn: sum, createEmpty: false, column: "iznos")
+  |> map(fn: (r) => ({period: string(v: r["_time"]), ukupanPrihodNaVreme: r["iznos"]}))
                  */
         );
         QueryApi queryApi = influxDBClient.getQueryApi();
         return queryApi.query(flux, org).stream()
                 .flatMap(table -> table.getRecords().stream())
                 .map(record -> Map.<String, Object>of(
-                        "period", String.valueOf(record.getTime()),
-                        "ukupanPrihodNaVreme", record.getValue()
+                        "period", String.valueOf(record.getValueByKey("period")),
+                        "ukupanPrihodNaVreme", record.getValueByKey("ukupanPrihodNaVreme")
                 ))
                 .toList();
     }

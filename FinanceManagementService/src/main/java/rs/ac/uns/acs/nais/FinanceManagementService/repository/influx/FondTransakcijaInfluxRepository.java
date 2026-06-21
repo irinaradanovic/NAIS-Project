@@ -178,8 +178,8 @@ join(tables: {u: uplate, i: isplate}, on: ["fondNaziv"])
         return queryApi.query(flux, org).stream()
                 .flatMap(table -> table.getRecords().stream())
                 .map(record -> Map.<String, Object>of(
-                        "period", String.valueOf(record.getTime()),
-                        "ukupanObrt", record.getValue()
+                        "period", String.valueOf(record.getValueByKey("period")),
+                        "ukupanObrt", record.getValueByKey("ukupanObrt")
                 ))
                 .toList();
     }

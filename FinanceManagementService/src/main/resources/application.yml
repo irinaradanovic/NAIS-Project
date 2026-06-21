@@ -14,7 +14,7 @@ spring:
     url: http://influxdb:8086
     token: my-super-secret-auth-token
     org: nais_org
-    bucket: restaurant_bucket
+    bucket: finance_bucket
 
   data:
     redis:
