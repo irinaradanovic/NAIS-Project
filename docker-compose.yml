@@ -30,19 +30,20 @@ services:
       retries: 5 # Number of failures before marking as unhealthy
 
   restaurant-management-service:
-      build:
-        context: ./RestaurantManagementService
-        dockerfile: Dockerfile
-      depends_on:
-        - eureka-server
-        - neo4j
-      environment:
-        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
-        SPRING_NEO4J_URI: bolt://neo4j:7687
-        SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
-        SPRING_NEO4J_AUTHENTICATION_PASSWORD: password
-      ports:
-        - "8080:8080"
+    build:
+      context: ./RestaurantManagementService
+      dockerfile: Dockerfile
+    depends_on:
+      - eureka-server
+      - neo4j
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_NEO4J_URI: bolt://neo4j:7687
+      SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
+      SPRING_NEO4J_AUTHENTICATION_PASSWORD: password
+    ports:
+      - "8080:8080"
+
   finance-management-service:
     build:
       context: ./FinanceManagementService
@@ -52,6 +53,7 @@ services:
       - neo4j
       - influxdb
       - redis
+      - influxdb-init
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_NEO4J_URI: bolt://neo4j:7687
@@ -60,7 +62,7 @@ services:
       SPRING_INFLUX_URL: http://influxdb:8086
       SPRING_INFLUX_TOKEN: my-super-secret-auth-token
       SPRING_INFLUX_ORG: nais_org
-      SPRING_INFLUX_BUCKET: restaurant_bucket
+      SPRING_INFLUX_BUCKET: finance_bucket
       SPRING_DATA_REDIS_HOST: redis
     ports:
       - "8083:8083"
@@ -129,15 +131,21 @@ services:
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-auth-token
     volumes:
       - influxdb_data:/var/lib/influxdb2
-      
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8086/health" ]
       interval: 10s
       timeout: 5s
       retries: 5
-    
-      
-      
+
+  influxdb-init:
+    image: influxdb:2.7
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    entrypoint: >
+      sh -c "
+      influx bucket create -n finance_bucket -o nais_org -t my-super-secret-auth-token --host http://influxdb:8086 || true
+      "
 
 
 volumes:

@@ -90,7 +90,7 @@ public class FondTransakcijaInfluxRepository {
     // SLOZENI UPITI
 
     /* Provera upisa podataka
-    from(bucket: "restaurant_bucket")
+    from(bucket: "finance_bucket")
   |> range(start: -365d)
   |> filter(fn: (r) => r["_measurement"] == "finance_fond_transakcije")
   |> limit(n: 10)
@@ -120,7 +120,7 @@ public class FondTransakcijaInfluxRepository {
                         "|> sort(columns: [\"bilans\"], desc: true)",
                 bucket, bucket
                 /*
-                uplate = from(bucket: "restaurant_bucket")
+                uplate = from(bucket: "finance_bucket")
   |> range(start: -365d)
   |> filter(fn: (r) => r["_measurement"] == "finance_fond_transakcije")
   |> filter(fn: (r) => r["_field"] == "iznos")
@@ -129,7 +129,7 @@ public class FondTransakcijaInfluxRepository {
   |> sum(column: "_value")
   |> rename(columns: {_value: "ukupnoUplate"})
 
-isplate = from(bucket: "restaurant_bucket")
+isplate = from(bucket: "finance_bucket")
   |> range(start: -365d)
   |> filter(fn: (r) => r["_measurement"] == "finance_fond_transakcije")
   |> filter(fn: (r) => r["_field"] == "iznos")
@@ -166,7 +166,7 @@ join(tables: {u: uplate, i: isplate}, on: ["fondNaziv"])
                         "|> map(fn: (r) => ({period: string(v: r[\"_time\"]), ukupanObrt: r[\"_value\"]}))",
                 bucket
                 /*
-                from(bucket: "restaurant_bucket")
+                from(bucket: "finance_bucket")
   |> range(start: -365d)
   |> filter(fn: (r) => r["_measurement"] == "finance_fond_transakcije")
   |> filter(fn: (r) => r["_field"] == "iznos")
@@ -199,7 +199,7 @@ join(tables: {u: uplate, i: isplate}, on: ["fondNaziv"])
                         "|> sort(columns: [\"ukupnoIsplaceno\"], desc: true)",
                 bucket, pragIsplate
                 /*
-                from(bucket: "restaurant_bucket")
+                from(bucket: "finance_bucket")
   |> range(start: -365d)
   |> filter(fn: (r) => r["_measurement"] == "finance_fond_transakcije")
   |> filter(fn: (r) => r["_field"] == "iznos")

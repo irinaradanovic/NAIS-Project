@@ -90,7 +90,7 @@ public class PlacanjeInfluxRepository {
     // SLOZENI UPITI
 
     /* Provera upisa podataka
-    from(bucket: "restaurant_bucket")
+    from(bucket: "finance_bucket")
   |> range(start: -365d)
   |> filter(fn: (r) => r["_measurement"] == "finance_payments")
   |> limit(n: 10)
@@ -109,7 +109,7 @@ public class PlacanjeInfluxRepository {
                         "|> sort(columns: [\"ukupanIznos\"], desc: true)",
                 bucket, poslednjiDani
                 /*
-                from(bucket: "restaurant_bucket")
+                from(bucket: "finance_bucket")
   |> range(start: -365d)
   |> filter(fn: (r) => r["_measurement"] == "finance_payments")
   |> filter(fn: (r) => r["_field"] == "iznos")
@@ -143,7 +143,7 @@ public class PlacanjeInfluxRepository {
                         "|> sort(columns: [\"prosecnoKasnjenje\"], desc: true)",
                 bucket
                 /*
-                from(bucket: "restaurant_bucket")
+                from(bucket: "finance_bucket")
   |> range(start: -365d)
   |> filter(fn: (r) => r["_measurement"] == "finance_payments")
   |> filter(fn: (r) => r["_field"] == "daniKasnjenja")
@@ -178,7 +178,7 @@ public class PlacanjeInfluxRepository {
                         "|> map(fn: (r) => ({period: string(v: r[\"_time\"]), ukupanPrihodNaVreme: r[\"iznos\"]}))",
                 bucket
                 /*
-                from(bucket: "restaurant_bucket")
+                from(bucket: "finance_bucket")
   |> range(start: -365d)
   |> filter(fn: (r) => r["_measurement"] == "finance_payments")
   |> filter(fn: (r) => r["_field"] == "iznos" or r["_field"] == "naVreme")
