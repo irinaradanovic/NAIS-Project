@@ -78,6 +78,7 @@ services:
       - eureka-server
       - neo4j
       - influxdb
+      - influxdb-init
       - redis
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
@@ -100,6 +101,7 @@ services:
     depends_on:
       - eureka-server
       - influxdb
+      - influxdb-init
       - redis
       - rabbitmq
     environment:
@@ -146,9 +148,15 @@ services:
     depends_on:
       influxdb:
         condition: service_healthy
+    restart: on-failure
     entrypoint: >
       sh -c "
-      influx bucket create -n finance_bucket -o nais_org -t my-super-secret-auth-token --host http://influxdb:8086 || true
+      until influx org list --host http://influxdb:8086 -t my-super-secret-auth-token | grep -q nais_org; do
+        echo 'Waiting for InfluxDB org to be ready...';
+        sleep 3;
+      done &&
+      influx bucket create -n finance_bucket -o nais_org -t my-super-secret-auth-token --host http://influxdb:8086 || true &&
+      influx bucket create -n order_bucket -o nais_org -t my-super-secret-auth-token --host http://influxdb:8086 || true
       "
       
 
