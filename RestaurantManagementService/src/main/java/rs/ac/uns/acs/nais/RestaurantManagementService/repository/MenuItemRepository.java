@@ -31,4 +31,19 @@ public interface MenuItemRepository extends Neo4jRepository<MenuItem, UUID> {
             "WHERE other.price < currentPrice " +
             "RETURN other.name AS itemName, other.price AS itemPrice, r.name AS restaurantName")
     List<CheaperSimilarItemsDTO> getCheaperSimilarItems(@Param("itemId") UUID itemId);
+
+    @Query("MATCH (m:MenuItem {id: $itemId}) " +
+            "WHERE m.isAvailable = true " +
+            "SET m.availableQuantity = CASE " +
+            "  WHEN m.availableQuantity IS NOT NULL THEN m.availableQuantity - $orderedQty " +
+            "  ELSE m.availableQuantity END " +
+            "SET m.isAvailable = CASE " +
+            "  WHEN m.availableQuantity = 0 THEN false " +
+            "  ELSE m.isAvailable END " +
+            "RETURN m")
+    MenuItem processInventoryUpdate(UUID itemId, Integer orderedQty);
+
+    @Query("MATCH (m:MenuItem {id: $itemId})<-[:INCLUDES_ITEM]-(c:Category)<-[:HAS_CATEGORY]-(menu:Menu)<-[:HAS_MENU]-(r:Restaurant) " +
+            "RETURN r.id + ',' + r.name + ',' + c.name")
+    String findRestaurantAndCategoryDetails(UUID itemId);
 }

@@ -92,7 +92,7 @@ public class PreparationLogRepositoryImpl implements PreparationLogRepository {
                 "from(bucket: \"%s\") " +
                         "|> range(start: -30d) " +
                         "|> filter(fn: (r) => r[\"_measurement\"] == \"order_preparation_logs\") " +
-                        "|> filter(fn: (r) => r[\"menuItemId\"] == \"%s\") " +  // ← ISPRAVLJENO
+                        "|> filter(fn: (r) => r[\"menuItemId\"] == \"%s\") " +
                         "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")" +
                         "|> group() " +
                         "|> sort(columns: [\"_time\"], desc: true)",

@@ -492,6 +492,10 @@ MATCH (c:Category {name: 'Premium Stejkovi'})
 MATCH (i:MenuItem {name: 'T-Bone Stejk'})
 CREATE (c)-[:INCLUDES_ITEM {discount: 0.0}]->(i);
 
+MATCH (c:Category {name: 'Premium Stejkovi'})
+MATCH (i:MenuItem {name: 'Ribeye Stejk'})
+CREATE (c)-[:INCLUDES_ITEM {discount: 0.0}]->(i);
+
 MATCH (c:Category {name: 'Jeftini Doručak'})
 MATCH (i:MenuItem {name: 'Omlet sa sirom'})
 CREATE (c)-[:INCLUDES_ITEM {discount: 0.0}]->(i);
@@ -500,5 +504,19 @@ MATCH (c:Category {name: 'Jeftini Doručak'})
 MATCH (i:MenuItem {name: 'Prženice'})
 CREATE (c)-[:INCLUDES_ITEM {discount: 0.0}]->(i);
 
+// za SAGU
+MATCH (m:MenuItem)
+SET m.isAvailable = true,
+    m.availableQuantity = 5;
+
+// jedan artikal  nedostupan
+MATCH (m:MenuItem {id: 'item-zinger-v3'})
+SET m.isAvailable = false,
+    m.availableQuantity = 0;
+
+
+MATCH (m:MenuItem)
+WHERE m.id IN ['item-ribeye-stejk', 'item-tbone-stejk', 'item-cappuccino', 'item-jagnjetina']
+SET m.availableQuantity = null;
 
 RETURN "Baza je popunjena sa 7 restorana";

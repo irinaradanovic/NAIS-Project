@@ -16,6 +16,11 @@ spring:
     packages-to-scan: rs.ac.uns.acs.nais.RestaurantTimeSeriesService.controller
     swagger-ui:
       path: /swagger-ui.html
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
 
   data:
     redis:

@@ -36,6 +36,7 @@ services:
     depends_on:
       - eureka-server
       - neo4j
+      - rabbitmq
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_NEO4J_URI: bolt://neo4j:7687
@@ -98,6 +99,7 @@ services:
       - eureka-server
       - influxdb
       - redis
+      - rabbitmq
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_INFLUX_URL: http://influxdb:8086
@@ -146,6 +148,18 @@ services:
       sh -c "
       influx bucket create -n finance_bucket -o nais_org -t my-super-secret-auth-token --host http://influxdb:8086 || true
       "
+      
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "check_running" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
 
 volumes:
