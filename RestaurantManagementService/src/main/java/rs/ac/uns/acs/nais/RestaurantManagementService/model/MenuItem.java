@@ -25,4 +25,7 @@ public class MenuItem {
     private String unit;  // merna jedinica
     private Integer timeMin;  // minimalno vreme pripreme u minutama
     private Integer timeMax;
+
+    private Integer availableQuantity; // moze biti null (neograniceno)
+    private Boolean isAvailable;       // da li uopste moze da se naruci
 }
