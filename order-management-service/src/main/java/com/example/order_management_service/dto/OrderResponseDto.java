@@ -14,4 +14,5 @@ public class OrderResponseDto {
     private String status;
     private String orderType;
     private String address;
+    private String restaurantId;
 }

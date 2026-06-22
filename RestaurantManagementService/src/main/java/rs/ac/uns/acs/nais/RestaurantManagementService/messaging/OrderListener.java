@@ -5,11 +5,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import rs.ac.uns.acs.nais.RestaurantManagementService.config.RabbitMQConfig;
 import rs.ac.uns.acs.nais.RestaurantManagementService.dto.RestaurantSagaRequest;
-import rs.ac.uns.acs.nais.RestaurantManagementService.model.MenuItem;
 import rs.ac.uns.acs.nais.RestaurantManagementService.repository.MenuItemRepository;
 import rs.ac.uns.acs.nais.RestaurantManagementService.dto.SagaResponseDTO;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,9 +28,10 @@ public class OrderListener {
         System.out.println("Stigla nova porudzbina preko RabbitMQ za stavku: " + request.getItemId());
 
         try {
-            MenuItem updatedItem = menuItemRepository.processInventoryUpdate(request.getItemId(), request.getQuantity());
+            validateRequest(request);
 
-            if (updatedItem == null) {
+            Integer updatedItemCount = menuItemRepository.processInventoryUpdate(request.getItemId(), request.getQuantity());
+            if (updatedItemCount == null || updatedItemCount == 0) {
                 throw new RuntimeException("Stavka " + request.getItemId() + " nije dostupna ili nema dovoljno na stanju");
             }
 
@@ -46,7 +45,7 @@ public class OrderListener {
             Map<String, Object> influxBody = new HashMap<>();
             influxBody.put("restaurantId", restaurantId);
             influxBody.put("restaurantName", restaurantName);
-            influxBody.put("menuItemItemId", request.getItemId().toString());
+            influxBody.put("menuItemItemId", request.getItemId());
             influxBody.put("categoryName", categoryName);
             influxBody.put("actualDurationMinutes", 0.0);
 
@@ -61,6 +60,18 @@ public class OrderListener {
 
             SagaResponseDTO failedResponse = new SagaResponseDTO(request.getOrderId(), "FAILED", e.getMessage());
             rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.RESTAURANT_RESPONSE_KEY, failedResponse);
+        }
+    }
+
+    private void validateRequest(RestaurantSagaRequest request) {
+        if (request == null || request.getOrderId() == null) {
+            throw new IllegalArgumentException("orderId je obavezan");
+        }
+        if (request.getItemId() == null || request.getItemId().isBlank()) {
+            throw new IllegalArgumentException("itemId je obavezan");
+        }
+        if (request.getQuantity() == null || request.getQuantity() <= 0) {
+            throw new IllegalArgumentException("quantity mora biti veći od nule");
         }
     }
 }

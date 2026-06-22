@@ -31,6 +31,17 @@ public interface OrderRepository extends Neo4jRepository<Order, UUID> {
             "CREATE (o)-[:HAS_INVOICE]->(i)")
     void addInvoiceToOrder(@Param("orderId") UUID orderId, @Param("invoiceId") UUID invoiceId);
 
+    @Query("MATCH (o:Order) WHERE o.id = $orderId " +
+            "MERGE (m:OrderMenuItem {menuItemId: $menuItemId}) " +
+            "CREATE (o)-[:HAS_MENU_ITEM {quantity: $quantity}]->(m)")
+    void addMenuItemToOrder(@Param("orderId") UUID orderId,
+                            @Param("menuItemId") String menuItemId,
+                            @Param("quantity") Integer quantity);
+
+    @Query("MATCH (o:Order) WHERE o.id = $orderId " +
+            "SET o.status = $status RETURN o")
+    Order updateStatus(@Param("orderId") UUID orderId, @Param("status") String status);
+
 
     interface OrderTypeAvgPrice { String getOrderType(); Double getAvgPrice(); }
     interface OrderStatusAvgPrice { String getStatus(); Double getAvgPrice(); }

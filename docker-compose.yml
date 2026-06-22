@@ -77,6 +77,7 @@ services:
       - neo4j
       - influxdb
       - redis
+      - rabbitmq
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_NEO4J_URI: bolt://neo4j:7687
@@ -88,6 +89,10 @@ services:
       SPRING_INFLUX_BUCKET: order_bucket
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
     ports:
       - "8084:8084"
 
