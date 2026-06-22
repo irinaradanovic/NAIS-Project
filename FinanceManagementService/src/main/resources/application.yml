@@ -7,6 +7,11 @@ spring:
     authentication:
       username: neo4j
       password: password
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
   application:
     name: finance-management-service
 
@@ -33,3 +38,4 @@ eureka:
         enabled: true
   instance:
     prefer-ip-address: true
+

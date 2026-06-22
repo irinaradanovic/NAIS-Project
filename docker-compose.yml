@@ -55,6 +55,7 @@ services:
       - influxdb
       - redis
       - influxdb-init
+      - rabbitmq
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_NEO4J_URI: bolt://neo4j:7687
@@ -65,6 +66,7 @@ services:
       SPRING_INFLUX_ORG: nais_org
       SPRING_INFLUX_BUCKET: finance_bucket
       SPRING_DATA_REDIS_HOST: redis
+      SPRING_RABBITMQ_HOST: rabbitmq
     ports:
       - "8083:8083"
 
