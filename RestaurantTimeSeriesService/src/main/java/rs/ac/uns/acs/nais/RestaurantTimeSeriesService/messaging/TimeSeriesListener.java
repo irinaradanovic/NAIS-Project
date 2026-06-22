@@ -23,7 +23,7 @@ public class TimeSeriesListener {
             PreparationLog plog = new PreparationLog();
             plog.setRestaurantId((String) message.get("restaurantId"));
             plog.setRestaurantName((String) message.get("restaurantName"));
-            plog.setMenuItemId((String) message.get("menuItemItemId"));
+            plog.setMenuItemId((String) message.get("menuItemId"));
             plog.setCategoryName((String) message.get("categoryName"));
             plog.setActualDurationMinutes((Double) message.get("actualDurationMinutes"));
             plog.setTime(Instant.now());
