@@ -42,7 +42,6 @@ public interface OrderRepository extends Neo4jRepository<Order, UUID> {
             "SET o.status = $status RETURN o")
     Order updateStatus(@Param("orderId") UUID orderId, @Param("status") String status);
 
-
     interface OrderTypeAvgPrice { String getOrderType(); Double getAvgPrice(); }
     interface OrderStatusAvgPrice { String getStatus(); Double getAvgPrice(); }
     interface TopArticleRevenue { String getArticleName(); Double getTotalRevenue(); }

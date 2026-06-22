@@ -2,6 +2,7 @@ package com.example.order_management_service.service;
 
 import com.example.order_management_service.configuration.RabbitMQConfig;
 import com.example.order_management_service.dto.OrderItemRequestDto;
+import com.example.order_management_service.dto.OrderMetricRequestDto;
 import com.example.order_management_service.dto.OrderRequestDto;
 import com.example.order_management_service.dto.RestaurantSagaRequestDto;
 import com.example.order_management_service.dto.SagaResponseDto;
@@ -50,6 +51,9 @@ class OrderServiceTest {
     @Mock
     private OrderSagaEventService orderSagaEventService;
 
+    @Mock
+    private OrderMetricService orderMetricService;
+
     @InjectMocks
     private OrderService orderService;
 
@@ -85,6 +89,11 @@ class OrderServiceTest {
         assertEquals("res-kfc-ns-3333", orderCaptor.getValue().getRestaurantId());
 
         verify(orderRepository).addMenuItemToOrder(orderId, "item-zinger-v3", 2);
+        ArgumentCaptor<OrderMetricRequestDto> metricCaptor = ArgumentCaptor.forClass(OrderMetricRequestDto.class);
+        verify(orderMetricService).create(metricCaptor.capture());
+        assertEquals(orderId.toString(), metricCaptor.getValue().getOrderId());
+        assertEquals("PENDING_VALIDATION", metricCaptor.getValue().getStatus());
+        assertEquals(2, metricCaptor.getValue().getItemCount());
 
         ArgumentCaptor<RestaurantSagaRequestDto> eventCaptor = ArgumentCaptor.forClass(RestaurantSagaRequestDto.class);
         verify(rabbitTemplate).convertAndSend(

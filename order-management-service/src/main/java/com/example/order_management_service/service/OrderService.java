@@ -1,5 +1,6 @@
 package com.example.order_management_service.service;
 
+import com.example.order_management_service.dto.OrderMetricRequestDto;
 import com.example.order_management_service.dto.OrderRequestDto;
 import com.example.order_management_service.dto.OrderResponseDto;
 import com.example.order_management_service.dto.RestaurantSagaRequestDto;
@@ -15,7 +16,9 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -33,6 +36,7 @@ public class OrderService {
     @Autowired private InvoiceRepository invoiceRepository;
     @Autowired private RabbitTemplate rabbitTemplate;
     @Autowired private OrderSagaEventService orderSagaEventService;
+    @Autowired private OrderMetricService orderMetricService;
 
     public OrderResponseDto create(OrderRequestDto dto) {
         validateCreateRequest(dto);
@@ -46,6 +50,18 @@ public class OrderService {
 
         Order saved = orderRepository.save(order);
         orderSagaEventService.log(saved, "ORDER_CREATED_PENDING", PENDING_VALIDATION, "Order created and waiting for restaurant validation", dto.getItems().size());
+        orderMetricService.create(new OrderMetricRequestDto(
+                saved.getId().toString(),
+                PENDING_VALIDATION,
+                saved.getOrderType(),
+                extractCity(saved.getAddress()),
+                "UNKNOWN",
+                0.0,
+                dto.getItems().stream().mapToInt(item -> item.getQuantity() == null ? 0 : item.getQuantity()).sum(),
+                null,
+                0.0,
+                toInstant(saved.getCreationDate())
+        ));
 
         dto.getItems().forEach(item ->
                 orderRepository.addMenuItemToOrder(saved.getId(), item.getMenuItemId(), item.getQuantity())
@@ -180,5 +196,17 @@ public class OrderService {
                 throw new IllegalArgumentException("quantity must be greater than zero for every order item");
             }
         });
+    }
+
+    private Instant toInstant(LocalDateTime creationDate) {
+        return creationDate == null ? Instant.now() : creationDate.atZone(ZoneId.systemDefault()).toInstant();
+    }
+
+    private String extractCity(String address) {
+        if (address == null || address.isBlank()) {
+            return "UNKNOWN";
+        }
+        String[] parts = address.split(",");
+        return parts.length > 1 ? parts[parts.length - 1].trim() : "UNKNOWN";
     }
 }
