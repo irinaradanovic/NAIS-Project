@@ -25,7 +25,7 @@ public class SagaFinansijskaTransakcija {
     @Column
     private Double stanjeFondaNakon;
 
-    @Column
+    @Column(tag = true)
     private String razlog;
 
     @Column(timestamp = true)
