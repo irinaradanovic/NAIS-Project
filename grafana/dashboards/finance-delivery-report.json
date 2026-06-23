@@ -6,21 +6,21 @@
   "schemaVersion": 38,
   "refresh": "30s",
   "time": {
-    "from": "now-1y",
+    "from": "now-30d",
     "to": "now"
   },
   "panels": [
     {
       "id": 1,
       "title": "Prosta sekcija 1 – Transakcije fondova > 5000 RSD (poslednjih mesec dana)",
-      "description": "Prikazuje sve uplate i isplate iz finansijskih fondova stambenih zajednica u poslednjih 30 dana gde je iznos bio veći od 5.000 dinara.",
+      "description": "Prikazuje sve uplate i isplate iz finansijskih fondova stambenih zajednica u poslednjih 30 dana gde je iznos veći od 5.000 dinara.",
       "type": "table",
       "gridPos": { "x": 0, "y": 0, "w": 24, "h": 9 },
       "datasource": { "type": "influxdb", "uid": "influxdb-finance" },
       "targets": [
         {
           "refId": "A",
-          "query": "from(bucket: \"finance_bucket\")\n  |> range(start: -30d)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"finance_fond_transakcije\")\n  |> filter(fn: (r) => r[\"_field\"] == \"iznos\")\n  |> filter(fn: (r) => r[\"_value\"] > 5000.0)\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> rename(columns: {\n      _time: \"Vreme transakcije\",\n      fondNaziv: \"Naziv fonda\",\n      tipTransakcije: \"Tip (UPLATA/ISPLATA)\",\n      stanId: \"Stan ID\",\n      iznos: \"Iznos (RSD)\"\n  })\n  |> keep(columns: [\"Vreme transakcije\", \"Naziv fonda\", \"Tip (UPLATA/ISPLATA)\", \"Stan ID\", \"Iznos (RSD)\"])\n  |> sort(columns: [\"Iznos (RSD)\"], desc: true)"
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"finance_fond_transakcije\")\n  |> filter(fn: (r) => r[\"_field\"] == \"iznos\")\n  |> filter(fn: (r) => r[\"_value\"] > 5000.0)\n  |> keep(columns: [\"_time\", \"_value\", \"fondNaziv\", \"tipTransakcije\", \"stanId\"])\n  |> rename(columns: {\n      _time: \"Vreme transakcije\",\n      _value: \"Iznos (RSD)\",\n      fondNaziv: \"Naziv fonda\",\n      tipTransakcije: \"Tip (UPLATA/ISPLATA)\",\n      stanId: \"Stan ID\"\n  })\n  |> sort(columns: [\"Iznos (RSD)\"], desc: true)"
         }
       ]
     },
@@ -34,7 +34,7 @@
       "targets": [
         {
           "refId": "A",
-          "query": "MATCH (c:Courier)\nWHERE c.status = 'SLOBODAN' AND c.prosecnaOcena > 4.5\nRETURN c.id AS `Courier ID`, c.ime AS `Ime dostavljaca`, c.prosecnaOcena AS `Prosecna ocena`, c.latitude AS `Latitude`, c.longitude AS `Longitude`\nORDER BY c.prosecnaOcena DESC"
+          "query": "MATCH (c:Courier)\nWHERE c.status = 'SLOBODAN' AND c.prosecnaOcena > 4.5\nRETURN c.id AS `Courier ID`, c.ime AS `Ime dostavljaca`, c.prosecnaOcena AS `Prosecna ocena`, c.status AS `Status`, c.latitude AS `Latitude`, c.longitude AS `Longitude`\nORDER BY c.prosecnaOcena DESC"
         }
       ]
     },
@@ -43,8 +43,8 @@
       "title": "Složena sekcija – Prosečno vreme dostave po zonama (Bar Gauge)",
       "description": "Prikazuje prosečno vreme dostave u minutima grupisano po zonama stambenih zajednica.",
       "type": "bargauge",
-      "gridPos": { "x": 0, "y": 17, "w": 12, "h": 10 },
-      "datasource": { "type": "influxdb", "uid": "influxdb-delivery" },
+      "gridPos": { "x": 0, "y": 17, "w": 24, "h": 10 },
+      "datasource": { "type": "influxdb", "uid": "influxdb" },
       "fieldConfig": {
         "defaults": {
           "unit": "m",
@@ -62,40 +62,7 @@
       "targets": [
         {
           "refId": "A",
-          "query": "from(bucket: \"delivery_bucket\")\n  |> range(start: -30d)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"delivery_assignments\")\n  |> filter(fn: (r) => r[\"_field\"] == \"deliveryMinutes\")\n  |> filter(fn: (r) => r[\"status\"] == \"USPESNO\")\n  |> group(columns: [\"zona\"])\n  |> mean()\n  |> map(fn: (r) => ({r with _field: r.zona}))\n  |> group()"
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "title": "Složena sekcija – Premium vs Standard zgrade (Pie Chart)",
-      "description": "Poređenje prosečnog vremena dostave između premium i standard fondova.",
-      "type": "piechart",
-      "gridPos": { "x": 12, "y": 17, "w": 12, "h": 10 },
-      "datasource": { "type": "influxdb", "uid": "influxdb-delivery" },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "m"
-        }
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "query": "from(bucket: \"delivery_bucket\")\n  |> range(start: -30d)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"delivery_assignments\")\n  |> filter(fn: (r) => r[\"_field\"] == \"deliveryMinutes\" or r[\"_field\"] == \"stanjeFonda\")\n  |> pivot(rowKey:[\"_time\"], columnKey:[\"_field\"], valueColumn:\"_value\")\n  |> map(fn:(r)=>({r with fondTip: if r.stanjeFonda > 100000.0 then \"Premium\" else \"Standard\"}))\n  |> group(columns:[\"fondTip\"])\n  |> mean(column:\"deliveryMinutes\")\n  |> map(fn:(r)=>({r with _field:r.fondTip}))\n  |> group()"
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "title": "Složena sekcija – Mesečni tok uplata i isplata fondova (Time series)",
-      "description": "Vizuelizuje mesečni trend uplata i isplata po fondovima stambenih zajednica.",
-      "type": "timeseries",
-      "gridPos": { "x": 0, "y": 27, "w": 24, "h": 10 },
-      "datasource": { "type": "influxdb", "uid": "influxdb-finance" },
-      "targets": [
-        {
-          "refId": "A",
-          "query": "from(bucket: \"finance_bucket\")\n  |> range(start: -12mo)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"finance_fond_transakcije\")\n  |> filter(fn: (r) => r[\"_field\"] == \"iznos\")\n  |> group(columns: [\"fondNaziv\", \"tipTransakcije\"])\n  |> aggregateWindow(every: 1mo, fn: sum, createEmpty: false)\n  |> sort(columns: [\"_time\"])"
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"delivery_assignments\")\n  |> filter(fn: (r) => r[\"_field\"] == \"deliveryMinutes\")\n  |> filter(fn: (r) => r[\"status\"] == \"USPESNO\")\n  |> group(columns: [\"zona\"])\n  |> mean(column: \"_value\")\n  |> keep(columns: [\"zona\", \"_value\"])\n  |> rename(columns: { _value: \"Prosečno vreme dostave (min)\", zona: \"Zona\" })"
         }
       ]
     }
