@@ -1,12 +1,12 @@
 {
   "title": "Finance & Delivery",
-  "uid": "finance-delivery-report",
+  "uid": "finance-and-delivery",
   "tags": [],
   "timezone": "browser",
   "schemaVersion": 38,
   "refresh": "30s",
   "time": {
-    "from": "now-30d",
+    "from": "now-1y",
     "to": "now"
   },
   "panels": [
@@ -24,10 +24,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "custom": {
-            "align": "auto",
-            "displayMode": "auto"
-          }
+          "custom": { "align": "auto", "displayMode": "auto" }
         },
         "overrides": [
           {
@@ -104,7 +101,7 @@
     {
       "id": 3,
       "title": "Složena sekcija – Prosečno vreme dostave po stambenim zajednicama (Bar Gauge)",
-      "description": "Složena analitika: prosečan iznos saga transakcija (u RSD) grupisano po fondovima stambenih zajednica – prikazuje koliko svaka zgrada troši po dostavi.",
+      "description": "Prosečan iznos isplata po fondovima stambenih zajednica.",
       "type": "bargauge",
       "gridPos": { "x": 0, "y": 17, "w": 12, "h": 10 },
       "datasource": { "type": "influxdb", "uid": "influxdb-finance" },
@@ -112,9 +109,9 @@
         "orientation": "horizontal",
         "displayMode": "gradient",
         "reduceOptions": {
-          "values": false,
-          "calcs": ["lastNotNull"],
-          "fields": ""
+          "values": true,
+          "calcs": ["mean"],
+          "fields": "/^_value$/"
         },
         "showUnfilled": true,
         "minVizWidth": 0,
@@ -133,8 +130,7 @@
               { "value": 2500, "color": "red" }
             ]
           },
-          "color": { "mode": "thresholds" },
-          "displayName": "${__field.labels.fondNaziv}"
+          "color": { "mode": "thresholds" }
         },
         "overrides": []
       },
@@ -142,14 +138,14 @@
         {
           "refId": "A",
           "datasource": { "type": "influxdb", "uid": "influxdb-finance" },
-          "query": "from(bucket: \"finance_bucket\")\n  |> range(start: -90d)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"finance_fond_transakcije\")\n  |> filter(fn: (r) => r[\"_field\"] == \"iznos\")\n  |> filter(fn: (r) => r[\"tipTransakcije\"] == \"ISPLATA\")\n  |> group(columns: [\"fondNaziv\"])\n  |> mean()\n  |> group()\n  |> sort(columns: [\"_value\"], desc: true)"
+          "query": "from(bucket: \"finance_bucket\")\n  |> range(start: -90d)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"finance_fond_transakcije\")\n  |> filter(fn: (r) => r[\"_field\"] == \"iznos\")\n  |> filter(fn: (r) => r[\"tipTransakcije\"] == \"ISPLATA\")\n  |> group(columns: [\"fondNaziv\"])\n  |> mean()\n  |> map(fn: (r) => ({r with _field: r.fondNaziv}))\n  |> group()"
         }
       ]
     },
     {
       "id": 4,
       "title": "Složena sekcija – Prosečno vreme dostave po zonama (Pie Chart)",
-      "description": "Pie chart koji vizualizuje distribuciju prosečnih isplata (u RSD) grupisano po stambenim zajednicama/fondovima – menadžment vidi koji fondovi najviše troše.",
+      "description": "Distribucija prosečnih isplata grupisano po stambenim zajednicama.",
       "type": "piechart",
       "gridPos": { "x": 12, "y": 17, "w": 12, "h": 10 },
       "datasource": { "type": "influxdb", "uid": "influxdb-finance" },
@@ -175,14 +171,14 @@
         {
           "refId": "A",
           "datasource": { "type": "influxdb", "uid": "influxdb-finance" },
-          "query": "from(bucket: \"finance_bucket\")\n  |> range(start: -90d)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"finance_fond_transakcije\")\n  |> filter(fn: (r) => r[\"_field\"] == \"iznos\")\n  |> filter(fn: (r) => r[\"tipTransakcije\"] == \"ISPLATA\")\n  |> group(columns: [\"fondNaziv\"])\n  |> mean()\n  |> group()\n  |> rename(columns: {_value: \"Prosecno vreme dostave (min)\"})"
+          "query": "from(bucket: \"finance_bucket\")\n  |> range(start: -90d)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"finance_fond_transakcije\")\n  |> filter(fn: (r) => r[\"_field\"] == \"iznos\")\n  |> filter(fn: (r) => r[\"tipTransakcije\"] == \"ISPLATA\")\n  |> group(columns: [\"fondNaziv\"])\n  |> mean()\n  |> map(fn: (r) => ({r with _field: r.fondNaziv}))\n  |> group()"
         }
       ]
     },
     {
       "id": 5,
       "title": "Složena sekcija – Mesečni tok uplata i isplata fondova (Time series)",
-      "description": "Vizuelizuje mesečni trend uplata i isplata po fondovima stambenih zajednica — menadžment vidi kako se fond puni/prazni kroz vreme.",
+      "description": "Vizuelizuje mesečni trend uplata i isplata po fondovima stambenih zajednica.",
       "type": "timeseries",
       "gridPos": { "x": 0, "y": 27, "w": 24, "h": 10 },
       "datasource": { "type": "influxdb", "uid": "influxdb-finance" },
