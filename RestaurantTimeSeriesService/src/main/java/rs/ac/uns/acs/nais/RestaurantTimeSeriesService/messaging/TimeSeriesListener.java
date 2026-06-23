@@ -29,7 +29,7 @@ public class TimeSeriesListener {
             plog.setTime(Instant.now());
 
             preparationLogService.save(plog);
-            System.out.println("Log uspešno upisan u InfluxDB asinhrono!");
+            System.out.println("Log uspešno upisan u InfluxDB asinhrono za menu item " + plog.getMenuItemId() + " restorana "+ plog.getRestaurantName());
 
         } catch (Exception e) {
             System.err.println("Greška prilikom asinhronog upisa u Influx: " + e.getMessage());

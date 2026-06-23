@@ -4,19 +4,23 @@
   "metadata": {
     "name": "admvb5x",
     "namespace": "default",
-    "uid": "60b848e6-60bf-4429-8b77-3ac974bbeee7",
-    "resourceVersion": "1782146930414991",
-    "generation": 7,
-    "creationTimestamp": "2026-06-22T14:27:35Z",
+    "uid": "restaurant-main-dashboard-uid",
+    "resourceVersion": "1782242138789986",
+    "generation": 1,
+    "creationTimestamp": "2026-06-23T19:15:38Z",
     "labels": {
-      "grafana.app/deprecatedInternalID": "1912536887844864"
+      "grafana.app/deprecatedInternalID": "2347413149667328"
     },
     "annotations": {
-      "grafana.app/createdBy": "user:afpwu1ad6l0jkd",
-      "grafana.app/folder": "",
-      "grafana.app/saved-from-ui": "Grafana v13.0.2 (3fcdbc5a)",
-      "grafana.app/updatedBy": "user:afpwu1ad6l0jkd",
-      "grafana.app/updatedTimestamp": "2026-06-22T16:48:50Z"
+      "grafana.app/createdBy": "access-policy:service",
+      "grafana.app/folder": "restaurant-service-folder",
+      "grafana.app/managedBy": "classic-file-provisioning",
+      "grafana.app/managerId": "RestaurantDashboards",
+      "grafana.app/sourceChecksum": "1e058a573b37f82550f16f8a6d7c7aeb",
+      "grafana.app/sourcePath": "/var/lib/grafana/dashboards/restaurant-order.json",
+      "grafana.app/sourceTimestamp": "1782241829000",
+      "grafana.app/folderTitle": "Restaurant Service",
+      "grafana.app/folderUrl": "/dashboards/f/restaurant-service-folder/restaurant-service"
     }
   },
   "spec": {
@@ -24,20 +28,20 @@
       {
         "kind": "AnnotationQuery",
         "spec": {
-          "query": {
-            "kind": "DataQuery",
-            "group": "grafana",
-            "version": "v0",
-            "datasource": {
-              "name": "-- Grafana --"
-            },
-            "spec": {}
-          },
+          "builtIn": true,
           "enable": true,
           "hide": true,
           "iconColor": "rgba(0, 211, 255, 1)",
           "name": "Annotations & Alerts",
-          "builtIn": true
+          "query": {
+            "datasource": {
+              "name": "-- Grafana --"
+            },
+            "group": "grafana",
+            "kind": "DataQuery",
+            "spec": {},
+            "version": "v0"
+          }
         }
       }
     ],
@@ -47,10 +51,6 @@
       "panel-1": {
         "kind": "Panel",
         "spec": {
-          "id": 1,
-          "title": "New panel",
-          "description": "",
-          "links": [],
           "data": {
             "kind": "QueryGroup",
             "spec": {
@@ -58,52 +58,44 @@
                 {
                   "kind": "PanelQuery",
                   "spec": {
+                    "hidden": false,
                     "query": {
-                      "kind": "DataQuery",
-                      "group": "influxdb",
-                      "version": "v0",
                       "datasource": {
                         "name": "influxdb"
                       },
+                      "group": "influxdb",
+                      "kind": "DataQuery",
                       "spec": {
                         "query": "from(bucket: \"restaurant_bucket\")\r\n  |> range(start: -3000h)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"order_preparation_logs\")\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> keep(columns: [\"_time\", \"restaurantId\", \"restaurantName\", \"menuItemId\", \"categoryName\", \"actualDurationMinutes\"])\r\n  |> sort(columns: [\"_time\"], desc: true)\r\n  |> limit(n: 50)"
-                      }
+                      },
+                      "version": "v0"
                     },
-                    "refId": "A",
-                    "hidden": false
+                    "refId": "A"
                   }
                 }
               ],
-              "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {},
+              "transformations": [
+                {
+                  "group": "labelsToFields",
+                  "kind": "Transformation",
+                  "spec": {
+                    "options": {}
+                  }
+                }
+              ]
             }
           },
+          "description": "",
+          "id": 1,
+          "links": [],
+          "title": "New panel",
           "vizConfig": {
-            "kind": "VizConfig",
             "group": "table",
-            "version": "13.0.2",
+            "kind": "VizConfig",
             "spec": {
-              "options": {
-                "cellHeight": "sm",
-                "frameIndex": 2,
-                "showHeader": true,
-                "sortBy": []
-              },
               "fieldConfig": {
                 "defaults": {
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "green"
-                      },
-                      {
-                        "value": 80,
-                        "color": "red"
-                      }
-                    ]
-                  },
                   "color": {
                     "mode": "thresholds"
                   },
@@ -116,6 +108,19 @@
                       "reducers": []
                     },
                     "inspect": false
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
                   }
                 },
                 "overrides": [
@@ -132,18 +137,21 @@
                     ]
                   }
                 ]
+              },
+              "options": {
+                "cellHeight": "sm",
+                "frameIndex": 2,
+                "showHeader": true,
+                "sortBy": []
               }
-            }
+            },
+            "version": "13.0.2"
           }
         }
       },
       "panel-3": {
         "kind": "Panel",
         "spec": {
-          "id": 3,
-          "title": "New panel",
-          "description": "",
-          "links": [],
           "data": {
             "kind": "QueryGroup",
             "spec": {
@@ -151,50 +159,36 @@
                 {
                   "kind": "PanelQuery",
                   "spec": {
+                    "hidden": false,
                     "query": {
-                      "kind": "DataQuery",
-                      "group": "kniepdennis-neo4j-datasource",
-                      "version": "v0",
                       "datasource": {
-                        "name": "afpwx74v0fk74d"
+                        "name": "bfq15vs0aiwowd"
                       },
+                      "group": "kniepdennis-neo4j-datasource",
+                      "kind": "DataQuery",
                       "spec": {
-                        "cypherQuery": "MATCH (r:Restaurant)-[:HAS_MENU]->(m:Menu)\r\nWHERE m.type = 'SEASONAL' AND m.active = true\r\nRETURN r.name AS Restoran, m.name AS Meni, m.description AS Opis, m.categoryName AS Kategorija"
-                      }
+                        "cypherQuery": "MATCH (r:Restaurant)-[:HAS_MENU]->(m:Menu)-[:HAS_CATEGORY]->(c:Category)\r\nWHERE m.type = 'STANDARD' AND m.deactivationDate IS NULL\r\nRETURN \r\n  r.name AS Restoran, \r\n  m.name AS Meni, \r\n  m.type AS Tip,\r\n  m.description AS Opis, \r\n  collect(c.name) AS Kategorije"
+                      },
+                      "version": "v0"
                     },
-                    "refId": "A",
-                    "hidden": false
+                    "refId": "A"
                   }
                 }
               ],
-              "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {},
+              "transformations": []
             }
           },
+          "description": "",
+          "id": 3,
+          "links": [],
+          "title": "New panel",
           "vizConfig": {
-            "kind": "VizConfig",
             "group": "table",
-            "version": "13.0.2",
+            "kind": "VizConfig",
             "spec": {
-              "options": {
-                "cellHeight": "sm",
-                "showHeader": true
-              },
               "fieldConfig": {
                 "defaults": {
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "green"
-                      },
-                      {
-                        "value": 80,
-                        "color": "red"
-                      }
-                    ]
-                  },
                   "color": {
                     "mode": "thresholds"
                   },
@@ -207,21 +201,35 @@
                       "reducers": []
                     },
                     "inspect": false
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
                   }
                 },
                 "overrides": []
+              },
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true
               }
-            }
+            },
+            "version": "13.0.2"
           }
         }
       },
       "panel-4": {
         "kind": "Panel",
         "spec": {
-          "id": 4,
-          "title": "New panel",
-          "description": "",
-          "links": [],
           "data": {
             "kind": "QueryGroup",
             "spec": {
@@ -229,68 +237,36 @@
                 {
                   "kind": "PanelQuery",
                   "spec": {
+                    "hidden": false,
                     "query": {
-                      "kind": "DataQuery",
-                      "group": "influxdb",
-                      "version": "v0",
                       "datasource": {
                         "name": "influxdb"
                       },
+                      "group": "influxdb",
+                      "kind": "DataQuery",
                       "spec": {
-                        "query": "from(bucket: \"restaurant_bucket\")\r\n  |> range(start: -1000h)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"order_preparation_logs\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"actualDurationMinutes\")\r\n  |> group(columns: [\"restaurantName\", \"categoryName\"])\r\n  |> mean()\r\n  |> group()\r\n  |> keep(columns: [\"restaurantName\", \"categoryName\", \"_value\"])"
-                      }
+                        "query": "from(bucket: \"restaurant_bucket\")\r\n  |> range(start: -1000h)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"order_preparation_logs\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"actualDurationMinutes\")\r\n  |> group(columns: [\"restaurantName\", \"categoryName\"])\r\n  |> mean()\r\n  |> group()\r\n  |> keep(columns: [\"restaurantName\", \"categoryName\", \"_value\"])\r\n  |> sort(columns: [\"_value\"], desc: true)"
+                      },
+                      "version": "v0"
                     },
-                    "refId": "A",
-                    "hidden": false
+                    "refId": "A"
                   }
                 }
               ],
-              "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {},
+              "transformations": []
             }
           },
+          "description": "",
+          "id": 4,
+          "links": [],
+          "title": "New panel",
           "vizConfig": {
-            "kind": "VizConfig",
             "group": "barchart",
-            "version": "13.0.2",
+            "kind": "VizConfig",
             "spec": {
-              "options": {
-                "barRadius": 0,
-                "barWidth": 0.97,
-                "fullHighlight": false,
-                "groupWidth": 0.7,
-                "legend": {
-                  "calcs": [],
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": true
-                },
-                "orientation": "auto",
-                "showValue": "auto",
-                "stacking": "none",
-                "tooltip": {
-                  "hideZeros": false,
-                  "mode": "single",
-                  "sort": "none"
-                },
-                "xTickLabelRotation": 0,
-                "xTickLabelSpacing": 0
-              },
               "fieldConfig": {
                 "defaults": {
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "green"
-                      },
-                      {
-                        "value": 80,
-                        "color": "red"
-                      }
-                    ]
-                  },
                   "color": {
                     "mode": "thresholds"
                   },
@@ -314,11 +290,154 @@
                     "thresholdsStyle": {
                       "mode": "off"
                     }
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
                   }
                 },
                 "overrides": []
+              },
+              "options": {
+                "barRadius": 0,
+                "barWidth": 0.97,
+                "fullHighlight": false,
+                "groupWidth": 0.7,
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "orientation": "auto",
+                "showValue": "auto",
+                "stacking": "none",
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                },
+                "xTickLabelRotation": 90,
+                "xTickLabelSpacing": 0
               }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-5": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "bfq15vs0aiwowd"
+                      },
+                      "group": "kniepdennis-neo4j-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "cypherQuery": "MATCH (m:Menu)-[:HAS_CATEGORY]->(c:Category)-[:INCLUDES_ITEM]->(i:MenuItem)\r\nWHERE m.deactivationDate IS NULL\r\n  AND i.timeMin IS NOT NULL\r\n  AND i.timeMax IS NOT NULL\r\nWITH \r\n    c.name AS category,\r\n    round(avg(i.timeMin), 1) AS avgMinTime,\r\n    round(avg(i.timeMax), 1) AS avgMaxTime,\r\n    min(i.timeMin) AS fastestItem,\r\n    max(i.timeMax) AS slowestItem\r\nRETURN category, avgMinTime, avgMaxTime, fastestItem, slowestItem\r\nORDER BY avgMaxTime DESC"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
             }
+          },
+          "description": "",
+          "id": 5,
+          "links": [],
+          "title": "New panel",
+          "vizConfig": {
+            "group": "barchart",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "fillOpacity": 80,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineWidth": 1,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              },
+              "options": {
+                "barRadius": 0,
+                "barWidth": 0.97,
+                "fullHighlight": false,
+                "groupWidth": 0.7,
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "orientation": "auto",
+                "showValue": "auto",
+                "stacking": "none",
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                },
+                "xTickLabelRotation": 90,
+                "xTickLabelSpacing": 0
+              }
+            },
+            "version": "13.0.2"
           }
         }
       }
@@ -330,40 +449,53 @@
           {
             "kind": "GridLayoutItem",
             "spec": {
-              "x": 0,
-              "y": 0,
-              "width": 22,
-              "height": 7,
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-1"
-              }
+              },
+              "height": 7,
+              "width": 22,
+              "x": 0,
+              "y": 0
             }
           },
           {
             "kind": "GridLayoutItem",
             "spec": {
-              "x": 0,
-              "y": 7,
-              "width": 12,
-              "height": 8,
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-3"
-              }
+              },
+              "height": 8,
+              "width": 12,
+              "x": 0,
+              "y": 7
             }
           },
           {
             "kind": "GridLayoutItem",
             "spec": {
-              "x": 12,
-              "y": 7,
-              "width": 12,
-              "height": 8,
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-4"
-              }
+              },
+              "height": 8,
+              "width": 12,
+              "x": 12,
+              "y": 7
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-5"
+              },
+              "height": 8,
+              "width": 12,
+              "x": 0,
+              "y": 15
             }
           }
         ]
@@ -371,12 +503,17 @@
     },
     "links": [],
     "liveNow": false,
+    "preferences": {
+      "layout": {
+        "kind": "GridLayout",
+        "spec": {
+          "items": []
+        }
+      }
+    },
     "preload": false,
     "tags": [],
     "timeSettings": {
-      "timezone": "browser",
-      "from": "now-6h",
-      "to": "now",
       "autoRefresh": "",
       "autoRefreshIntervals": [
         "5s",
@@ -390,18 +527,13 @@
         "2h",
         "1d"
       ],
+      "fiscalYearStartMonth": 0,
+      "from": "now-6h",
       "hideTimepicker": false,
-      "fiscalYearStartMonth": 0
+      "timezone": "browser",
+      "to": "now"
     },
     "title": "RestaurantDashboards",
-    "variables": [],
-    "preferences": {
-      "layout": {
-        "kind": "GridLayout",
-        "spec": {
-          "items": []
-        }
-      }
-    }
+    "variables": []
   }
 }

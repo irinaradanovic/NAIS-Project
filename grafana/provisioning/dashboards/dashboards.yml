@@ -6,5 +6,6 @@ providers:
     type: file
     disableDeletion: false
     editable: true
+    folderUid: 'restaurant-service-folder'
     options:
       path: /var/lib/grafana/dashboards

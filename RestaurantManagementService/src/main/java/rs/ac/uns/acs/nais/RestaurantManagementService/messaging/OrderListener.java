@@ -2,6 +2,8 @@ package rs.ac.uns.acs.nais.RestaurantManagementService.messaging;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.client.RestTemplate;
 import rs.ac.uns.acs.nais.RestaurantManagementService.config.RabbitMQConfig;
 import rs.ac.uns.acs.nais.RestaurantManagementService.dto.RestaurantSagaRequest;
@@ -30,8 +32,8 @@ public class OrderListener {
         try {
             validateRequest(request);
 
-            Integer updatedItemCount = menuItemRepository.processInventoryUpdate(request.getItemId(), request.getQuantity());
-            if (updatedItemCount == null || updatedItemCount == 0) {
+            String itemId = menuItemRepository.processInventoryUpdate(request.getItemId(), request.getQuantity());
+            if (itemId == null ) {
                 throw new RuntimeException("Stavka " + request.getItemId() + " nije dostupna ili nema dovoljno na stanju");
             }
 
@@ -45,7 +47,7 @@ public class OrderListener {
             Map<String, Object> influxBody = new HashMap<>();
             influxBody.put("restaurantId", restaurantId);
             influxBody.put("restaurantName", restaurantName);
-            influxBody.put("menuItemItemId", request.getItemId());
+            influxBody.put("menuItemId", request.getItemId());
             influxBody.put("categoryName", categoryName);
             influxBody.put("actualDurationMinutes", 0.0);
 
