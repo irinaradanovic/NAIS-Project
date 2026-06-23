@@ -1,0 +1,70 @@
+{
+  "title": "Finance & Delivery",
+  "uid": "finance-and-delivery",
+  "tags": [],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "refresh": "30s",
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Prosta sekcija 1 – Transakcije fondova > 5000 RSD (poslednjih mesec dana)",
+      "description": "Prikazuje sve uplate i isplate iz finansijskih fondova stambenih zajednica u poslednjih 30 dana gde je iznos veći od 5.000 dinara.",
+      "type": "table",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 9 },
+      "datasource": { "type": "influxdb", "uid": "influxdb-finance" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"finance_fond_transakcije\")\n  |> filter(fn: (r) => r[\"_field\"] == \"iznos\")\n  |> filter(fn: (r) => r[\"_value\"] > 5000.0)\n  |> keep(columns: [\"_time\", \"_value\", \"fondNaziv\", \"tipTransakcije\", \"stanId\"])\n  |> rename(columns: {\n      _time: \"Vreme transakcije\",\n      _value: \"Iznos (RSD)\",\n      fondNaziv: \"Naziv fonda\",\n      tipTransakcije: \"Tip (UPLATA/ISPLATA)\",\n      stanId: \"Stan ID\"\n  })\n  |> sort(columns: [\"Iznos (RSD)\"], desc: true)"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Prosta sekcija 2 – Slobodni dostavljači sa prosečnom ocenom > 4.5",
+      "description": "Lista svih dostavljača koji su trenutno u statusu SLOBODAN i imaju prosečnu ocenu veću od 4.5.",
+      "type": "table",
+      "gridPos": { "x": 0, "y": 9, "w": 24, "h": 8 },
+      "datasource": { "type": "kniepdennis-neo4j-datasource", "uid": "neo4j" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "MATCH (c:Courier)\nWHERE c.status = 'SLOBODAN' AND c.prosecnaOcena > 4.5\nRETURN c.id AS `Courier ID`, c.ime AS `Ime dostavljaca`, c.prosecnaOcena AS `Prosecna ocena`, c.status AS `Status`, c.latitude AS `Latitude`, c.longitude AS `Longitude`\nORDER BY c.prosecnaOcena DESC"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Složena sekcija – Prosečno vreme dostave po zonama (Bar Gauge)",
+      "description": "Prikazuje prosečno vreme dostave u minutima grupisano po zonama stambenih zajednica.",
+      "type": "bargauge",
+      "gridPos": { "x": 0, "y": 17, "w": 24, "h": 10 },
+      "datasource": { "type": "influxdb", "uid": "influxdb" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "m",
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": 0, "color": "green" },
+              { "value": 20, "color": "yellow" },
+              { "value": 35, "color": "red" }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"delivery_assignments\")\n  |> filter(fn: (r) => r[\"_field\"] == \"deliveryMinutes\")\n  |> filter(fn: (r) => r[\"status\"] == \"USPESNO\")\n  |> group(columns: [\"zona\"])\n  |> mean(column: \"_value\")\n  |> keep(columns: [\"zona\", \"_value\"])\n  |> rename(columns: { _value: \"Prosečno vreme dostave (min)\", zona: \"Zona\" })"
+        }
+      ]
+    }
+  ]
+}
