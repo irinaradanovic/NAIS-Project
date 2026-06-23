@@ -23,3 +23,16 @@ datasources:
       tlsSkipVerify: true
     secureJsonData:
       token: my-super-secret-auth-token
+
+  - name: InfluxDB-Finance
+    type: influxdb
+    uid: influxdb-finance
+    access: proxy
+    url: http://influxdb:8086
+    jsonData:
+      version: Flux
+      organization: nais_org
+      defaultBucket: finance_bucket
+      tlsSkipVerify: true
+    secureJsonData:
+      token: my-super-secret-auth-token

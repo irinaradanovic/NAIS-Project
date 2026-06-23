@@ -326,3 +326,11 @@ CREATE (st5)-[:IMA_RACUN {datumPlacanja: null, isNaVreme: false}]->(r10)
 CREATE (st6)-[:IMA_RACUN {datumPlacanja: '2026-04-20', isNaVreme: false}]->(r12)
 
 RETURN "Finance baza je popunjena: 5 vlasnika, 8 stanova, 6 stanara, 12 racuna, 4 fonda";
+CREATE (c1:Courier {id: 'courier-1', ime: 'Marko Petrovic', status: 'SLOBODAN', prosecnaOcena: 4.8, latitude: 45.2671, longitude: 19.8335})
+CREATE (c2:Courier {id: 'courier-2', ime: 'Ana Nikolic', status: 'SLOBODAN', prosecnaOcena: 4.9, latitude: 45.2550, longitude: 19.8442})
+CREATE (c3:Courier {id: 'courier-3', ime: 'Stefan Jovic', status: 'ZAUZET', prosecnaOcena: 4.6, latitude: 45.2490, longitude: 19.8201})
+CREATE (c4:Courier {id: 'courier-4', ime: 'Jovana Ilic', status: 'SLOBODAN', prosecnaOcena: 4.7, latitude: 45.2610, longitude: 19.8510})
+CREATE (c5:Courier {id: 'courier-5', ime: 'Nikola Stosic', status: 'SLOBODAN', prosecnaOcena: 4.5, latitude: 45.2730, longitude: 19.8280})
+CREATE (c6:Courier {id: 'courier-6', ime: 'Milena Djordjevic', status: 'ZAUZET', prosecnaOcena: 4.3, latitude: 45.2580, longitude: 19.8390})
+CREATE (c7:Courier {id: 'courier-7', ime: 'Petar Savic', status: 'SLOBODAN', prosecnaOcena: 4.9, latitude: 45.2640, longitude: 19.8460})
+CREATE (c8:Courier {id: 'courier-8', ime: 'Maja Lukic', status: 'SLOBODAN', prosecnaOcena: 4.6, latitude: 45.2510, longitude: 19.8320})
