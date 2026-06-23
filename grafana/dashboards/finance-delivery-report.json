@@ -34,7 +34,7 @@
       "targets": [
         {
           "refId": "A",
-          "query": "MATCH (c:Courier)\nWHERE c.status = 'SLOBODAN' AND c.prosecnaOcena > 4.5\nRETURN c.id AS `Courier ID`, c.ime AS `Ime dostavljaca`, c.prosecnaOcena AS `Prosecna ocena`, c.status AS `Status`, c.latitude AS `Latitude`, c.longitude AS `Longitude`\nORDER BY c.prosecnaOcena DESC"
+          "query": "MATCH (d:Dostavljac)\nWHERE d.status = 'SLOBODAN' AND d.prosecnaOcena > 4.5\nRETURN d.id AS `Dostavljac ID`, d.ime AS `Ime dostavljaca`, d.prosecnaOcena AS `Prosecna ocena`, d.status AS `Status`, d.zona AS `Zona`\nORDER BY d.prosecnaOcena DESC"
         }
       ]
     },
@@ -44,7 +44,7 @@
       "description": "Prikazuje prosečno vreme dostave u minutima grupisano po zonama stambenih zajednica.",
       "type": "bargauge",
       "gridPos": { "x": 0, "y": 17, "w": 24, "h": 10 },
-      "datasource": { "type": "influxdb", "uid": "influxdb" },
+      "datasource": { "type": "influxdb", "uid": "influxdb-delivery" },
       "fieldConfig": {
         "defaults": {
           "unit": "m",

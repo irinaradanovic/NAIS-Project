@@ -106,7 +106,7 @@ public class FinanceInfluxService implements CommandLineRunner {
             String tip = random.nextDouble() < 0.6 ? "UPLATA" : "ISPLATA";
             double iznos = tip.equals("UPLATA")
                     ? 500  + random.nextDouble() * 5000
-                    : 200  + random.nextDouble() * 3000;
+                    : 200  + random.nextDouble() * 8000;
             if (tip.equals("UPLATA")) {
                 iznosiFondova[fondIdx] += iznos;
             } else {

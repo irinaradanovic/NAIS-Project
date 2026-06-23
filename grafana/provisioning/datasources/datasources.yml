@@ -36,3 +36,16 @@ datasources:
       tlsSkipVerify: true
     secureJsonData:
       token: my-super-secret-auth-token
+
+  - name: InfluxDB-Delivery
+    type: influxdb
+    uid: influxdb-delivery
+    access: proxy
+    url: http://influxdb:8086
+    jsonData:
+      version: Flux
+      organization: nais_org
+      defaultBucket: delivery_bucket
+      tlsSkipVerify: true
+    secureJsonData:
+      token: my-super-secret-auth-token
