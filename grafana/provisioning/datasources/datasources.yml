@@ -5,9 +5,9 @@ datasources:
     type: kniepdennis-neo4j-datasource
     uid: neo4j
     access: proxy
-    url: http://neo4j:7474
     jsonData:
       username: neo4j
+      url: bolt://neo4j:7687
     secureJsonData:
       password: password
 
