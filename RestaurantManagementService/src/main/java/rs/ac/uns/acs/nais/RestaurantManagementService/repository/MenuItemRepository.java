@@ -47,4 +47,14 @@ public interface MenuItemRepository extends Neo4jRepository<MenuItem, UUID> {
     @Query("MATCH (m:MenuItem {id: $itemId})<-[:INCLUDES_ITEM]-(c:Category)<-[:HAS_CATEGORY]-(menu:Menu)<-[:HAS_MENU]-(r:Restaurant) " +
             "RETURN r.id + ',' + r.name + ',' + c.name")
     String findRestaurantAndCategoryDetails(String itemId);
+
+    @Query("MATCH (m:MenuItem {id: $itemId}) " +
+            "SET m.isAvailable = CASE " +
+            "  WHEN m.availableQuantity = 0 THEN true " +
+            "  ELSE m.isAvailable END " +
+            "SET m.availableQuantity = CASE " +
+            "  WHEN m.availableQuantity IS NOT NULL THEN m.availableQuantity + toInteger($orderedQty) " +
+            "  ELSE m.availableQuantity END " +
+            "RETURN m.id")
+    String compensateInventoryUpdate(String itemId, Integer orderedQty);
 }

@@ -28,6 +28,7 @@ public class OrderListener {
     @RabbitListener(queues = "restaurant.order.queue")
     public void handleNewOrderEvent(RestaurantSagaRequest request) {
         System.out.println("Stigla nova porudzbina preko RabbitMQ za stavku: " + request.getItemId());
+        boolean inventoryUpdated = false;
 
         try {
             validateRequest(request);
@@ -36,6 +37,7 @@ public class OrderListener {
             if (itemId == null ) {
                 throw new RuntimeException("Stavka " + request.getItemId() + " nije dostupna ili nema dovoljno na stanju");
             }
+            inventoryUpdated = true;
 
             String details = menuItemRepository.findRestaurantAndCategoryDetails(request.getItemId());
             String[] parts = details.split(",");
@@ -59,6 +61,10 @@ public class OrderListener {
 
         } catch (Exception e) {
             System.out.println("Greska u Sagi na strani restorana: " + e.getMessage());
+            if (inventoryUpdated) {
+                System.out.println("Kompenzacija: Vracanje stavke " + request.getItemId() + " nazad u prethodno stanje.");
+                menuItemRepository.compensateInventoryUpdate(request.getItemId(), request.getQuantity());
+            }
 
             SagaResponseDTO failedResponse = new SagaResponseDTO(request.getOrderId(), "FAILED", e.getMessage());
             rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.RESTAURANT_RESPONSE_KEY, failedResponse);
