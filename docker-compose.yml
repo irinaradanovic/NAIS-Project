@@ -50,12 +50,16 @@ services:
       context: ./FinanceManagementService
       dockerfile: Dockerfile
     depends_on:
-      - eureka-server
-      - neo4j
-      - influxdb
-      - redis
-      - influxdb-init
-      - rabbitmq
+      eureka-server:
+        condition: service_started
+      neo4j:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      influxdb-init:
+        condition: service_completed_successfully
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_NEO4J_URI: bolt://neo4j:7687
@@ -75,12 +79,16 @@ services:
       context: ./MockDeliveryService
       dockerfile: Dockerfile
     depends_on:
-      - eureka-server
-      - neo4j
-      - influxdb
-      - redis
-      - influxdb-init
-      - rabbitmq
+      eureka-server:
+        condition: service_started
+      neo4j:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      influxdb-init:
+        condition: service_completed_successfully
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_NEO4J_URI: bolt://neo4j:7687
@@ -102,12 +110,16 @@ services:
       context: ./order-management-service
       dockerfile: Dockerfile
     depends_on:
-      - eureka-server
-      - neo4j
-      - influxdb
-      - influxdb-init
-      - redis
-      - rabbitmq
+      eureka-server:
+        condition: service_started
+      neo4j:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      influxdb-init:
+        condition: service_completed_successfully
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_NEO4J_URI: bolt://neo4j:7687
@@ -131,11 +143,14 @@ services:
       context: ./RestaurantTimeSeriesService
       dockerfile: Dockerfile
     depends_on:
-      - eureka-server
-      - influxdb
-      - influxdb-init
-      - redis
-      - rabbitmq
+      eureka-server:
+        condition: service_started
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      influxdb-init:
+        condition: service_completed_successfully
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_INFLUX_URL: http://influxdb:8086
@@ -180,7 +195,7 @@ services:
     depends_on:
       influxdb:
         condition: service_healthy
-    restart: on-failure
+    restart: "no"
     entrypoint: >
       sh -c "
       until influx org list --host http://influxdb:8086 -t my-super-secret-auth-token | grep -q nais_org; do
@@ -191,7 +206,7 @@ services:
       influx bucket create -n order_bucket -o nais_org -t my-super-secret-auth-token --host http://influxdb:8086 || true &&
       influx bucket create -n delivery_bucket -o nais_org -t my-super-secret-auth-token --host http://influxdb:8086 || true
       "
-      
+
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -217,7 +232,7 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_PLUGINS_INSTALL=kniepdennis-neo4j-datasource
+      - GF_INSTALL_PLUGINS=kniepdennis-neo4j-datasource
       - GF_ALLOW_LOADING_UNSIGNED_PLUGINS=kniepdennis-neo4j-datasource
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning
