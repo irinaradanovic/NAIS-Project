@@ -23,7 +23,7 @@ public class DeliveryAssignmentService {
     private final ObjectMapper objectMapper;
     private final Neo4jClient neo4jClient;
     private final InfluxDBClient influxDBClient;
-    private final SagaResponsePublisher sagaResponsePublisher;
+
 
     @Value("${spring.influx.bucket}")
     private String bucket;
@@ -34,13 +34,13 @@ public class DeliveryAssignmentService {
     public DeliveryAssignmentService(
             ObjectMapper objectMapper,
             Neo4jClient neo4jClient,
-            InfluxDBClient influxDBClient,
-            SagaResponsePublisher sagaResponsePublisher) {
+            InfluxDBClient influxDBClient
+            ) {
 
         this.objectMapper = objectMapper;
         this.neo4jClient = neo4jClient;
         this.influxDBClient = influxDBClient;
-        this.sagaResponsePublisher = sagaResponsePublisher;
+
     }
 
     public void processDeliveryRequest(Message message) throws Exception {
@@ -62,14 +62,7 @@ public class DeliveryAssignmentService {
                     null
             );
 
-            sagaResponsePublisher.publish(
-                    new SagaDeliveryResponseEventDTO(
-                            request.getSagaId(),
-                            "NEUSPESNO",
-                            null,
-                            "Nema slobodnog dostavljaca sa ocenom vecom od 4.5"
-                    )
-            );
+
 
             return;
         }
@@ -84,14 +77,7 @@ public class DeliveryAssignmentService {
                 izracunajMinute(request.getFondId(), zona)
         );
 
-        sagaResponsePublisher.publish(
-                new SagaDeliveryResponseEventDTO(
-                        request.getSagaId(),
-                        "USPESNO",
-                        dostavljacId,
-                        null
-                )
-        );
+
     }
 
     private Optional<Map<String, Object>> pronadjiDostavljaca(SagaDeliveryRequestEventDTO request) {
