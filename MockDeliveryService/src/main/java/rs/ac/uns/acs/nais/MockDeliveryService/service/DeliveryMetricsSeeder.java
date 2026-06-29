@@ -27,6 +27,8 @@ public class DeliveryMetricsSeeder implements CommandLineRunner {
     @Value("${spring.influx.org}")
     private String org;
 
+    private static final int BROJ_ZAPISA = 2000;
+
     public DeliveryMetricsSeeder(InfluxDBClient influxDBClient) {
         this.influxDBClient = influxDBClient;
     }
@@ -59,16 +61,16 @@ public class DeliveryMetricsSeeder implements CommandLineRunner {
     private void seedDeliveryData() {
         Random random = new Random(7);
 
-        // adresa, zona, fondId (FOND-003 i FOND-002 simuliraju "bogatije"/premium zgrade sa visim fondom)
+        // adresa, zona, narudzbinaId (NAR-003 i NAR-002 simuliraju "vece" narudzbine sa visim fondom)
         String[][] lokacije = {
-                {"Bulevar Oslobodjenja 12", "Bulevar Oslobodjenja", "FOND-003"},
-                {"Bulevar Oslobodjenja 47", "Bulevar Oslobodjenja", "FOND-003"},
-                {"Jovana Subotica 5", "Jovana Subotica", "FOND-001"},
-                {"Jovana Subotica 21", "Jovana Subotica", "FOND-002"},
-                {"Futoska 88", "Futoska", "FOND-002"},
-                {"Futoska 14", "Futoska", "FOND-004"},
-                {"Stevana Musica 3", "Ostalo", "FOND-004"},
-                {"Narodnog Fronta 9", "Ostalo", "FOND-001"}
+                {"Bulevar Oslobodjenja 12", "Bulevar Oslobodjenja", "NAR-003"},
+                {"Bulevar Oslobodjenja 47", "Bulevar Oslobodjenja", "NAR-003"},
+                {"Jovana Subotica 5", "Jovana Subotica", "NAR-001"},
+                {"Jovana Subotica 21", "Jovana Subotica", "NAR-002"},
+                {"Futoska 88", "Futoska", "NAR-002"},
+                {"Futoska 14", "Futoska", "NAR-004"},
+                {"Stevana Musica 3", "Ostalo", "NAR-004"},
+                {"Narodnog Fronta 9", "Ostalo", "NAR-001"}
         };
 
         String[] dostavljaci = {"DOST-001", "DOST-002", "DOST-003", "DOST-004"};
@@ -76,16 +78,16 @@ public class DeliveryMetricsSeeder implements CommandLineRunner {
         List<DeliveryAssignmentMetric> metrike = new ArrayList<>();
         Instant sada = Instant.now();
 
-        for (int i = 0; i < 250; i++) {
+        for (int i = 0; i < BROJ_ZAPISA; i++) {
             String[] lokacija = lokacije[random.nextInt(lokacije.length)];
             String adresa = lokacija[0];
             String zona = lokacija[1];
-            String fondId = lokacija[2];
+            String narudzbinaId = lokacija[2];
 
-            double stanjeFonda = switch (fondId) {
-                case "FOND-003" -> 1100000.0 + random.nextDouble() * 200000.0; // premium fond
-                case "FOND-002" -> 800000.0 + random.nextDouble() * 150000.0;
-                case "FOND-001" -> 400000.0 + random.nextDouble() * 100000.0;
+            double stanjeFonda = switch (narudzbinaId) {
+                case "NAR-003" -> 1100000.0 + random.nextDouble() * 200000.0;
+                case "NAR-002" -> 800000.0 + random.nextDouble() * 150000.0;
+                case "NAR-001" -> 400000.0 + random.nextDouble() * 100000.0;
                 default -> 120000.0 + random.nextDouble() * 80000.0;
             };
 
@@ -95,9 +97,8 @@ public class DeliveryMetricsSeeder implements CommandLineRunner {
                 case "Futoska" -> 27.0;
                 default -> 32.0;
             };
-            // "bogatije" zgrade (vise stanje fonda) dobijaju hranu brze
             double osnovnoVreme = stanjeFonda > 700000.0 ? baza - 4.0 : baza + 3.0;
-            double sumVremena = random.nextDouble() * 6.0 - 3.0; // +/- 3 min slucajne varijacije
+            double sumVremena = random.nextDouble() * 6.0 - 3.0;
             double deliveryMinutes = Math.max(5.0, osnovnoVreme + sumVremena);
 
             boolean uspesno = random.nextDouble() < 0.92;
@@ -105,19 +106,18 @@ public class DeliveryMetricsSeeder implements CommandLineRunner {
             String dostavljacId = uspesno ? dostavljaci[random.nextInt(dostavljaci.length)] : null;
 
             Instant vreme = sada
-                    .minus(random.nextInt(30), ChronoUnit.DAYS)
+                    .minus(random.nextInt(90), ChronoUnit.DAYS)
                     .minus(random.nextInt(24), ChronoUnit.HOURS)
                     .minus(random.nextInt(60), ChronoUnit.MINUTES);
 
             metrike.add(new DeliveryAssignmentMetric(
                     "SEED-" + i,
-                    fondId,
+                    narudzbinaId,
                     adresa,
                     zona,
                     dostavljacId,
                     status,
                     uspesno ? Math.round(deliveryMinutes * 10.0) / 10.0 : null,
-                    Math.round(stanjeFonda * 100.0) / 100.0,
                     vreme
             ));
         }

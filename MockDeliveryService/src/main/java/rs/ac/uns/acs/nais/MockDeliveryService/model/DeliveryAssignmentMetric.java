@@ -2,58 +2,39 @@ package rs.ac.uns.acs.nais.MockDeliveryService.model;
 
 import com.influxdb.annotations.Column;
 import com.influxdb.annotations.Measurement;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.Instant;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Measurement(name = "delivery_assignments")
 public class DeliveryAssignmentMetric {
 
     @Column(tag = true)
-    private String sagaId;
+    private String id;              // jedinstveni identifikator zapisa (UUID) - koristi se za CRUD
 
     @Column(tag = true)
-    private String fondId;
+    private String narudzbinaId;    // id narudzbine/posiljke na koju se dostava odnosi
 
     @Column(tag = true)
-    private String adresa;
+    private String adresa;          // adresa dostave
 
     @Column(tag = true)
-    private String zona;
+    private String zona;            // zona grada u kojoj se dostava odvija
 
     @Column(tag = true)
-    private String dostavljacId;
+    private String dostavljacId;    // id dostavljaca kome je dostava dodeljena
 
     @Column(tag = true)
-    private String status;
+    private String status;          // status dostave (npr. USPESNO, NEUSPESNO)
 
     @Column
-    private Double deliveryMinutes;
-
-    @Column
-    private Double stanjeFonda;
+    private Double deliveryMinutes; // trajanje dostave u minutima
 
     @Column(timestamp = true)
-    private Instant time;
-
-    public DeliveryAssignmentMetric(String sagaId, String fondId, String adresa, String zona, String dostavljacId,
-                                    String status, Double deliveryMinutes, Double stanjeFonda, Instant time) {
-        this.sagaId = sagaId;
-        this.fondId = fondId;
-        this.adresa = adresa;
-        this.zona = zona;
-        this.dostavljacId = dostavljacId;
-        this.status = status;
-        this.deliveryMinutes = deliveryMinutes;
-        this.stanjeFonda = stanjeFonda;
-        this.time = time;
-    }
-
-    public String getSagaId() { return sagaId; }
-    public String getFondId() { return fondId; }
-    public String getAdresa() { return adresa; }
-    public String getZona() { return zona; }
-    public String getDostavljacId() { return dostavljacId; }
-    public String getStatus() { return status; }
-    public Double getDeliveryMinutes() { return deliveryMinutes; }
-    public Double getStanjeFonda() { return stanjeFonda; }
-    public Instant getTime() { return time; }
+    private Instant time;           // vreme nastanka zapisa
 }
