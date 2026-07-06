@@ -12,11 +12,14 @@ import rs.ac.uns.acs.nais.MockDeliveryService.dto.CreateMetricRequest;
 import rs.ac.uns.acs.nais.MockDeliveryService.dto.MetricResponse;
 import rs.ac.uns.acs.nais.MockDeliveryService.util.MetricMapper;
 import rs.ac.uns.acs.nais.MockDeliveryService.model.DeliveryAssignmentMetric;
+import com.influxdb.client.DeleteApi;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 
 @Service
 public class DeliveryMetricService {
@@ -112,27 +115,25 @@ public class DeliveryMetricService {
         return result;
     }
 
-    // DELETE (po id-u -> “soft delete” kroz novi zapis ili filtriranje)
     public void deleteById(String id) {
+        Instant start = Instant.parse("1970-01-01T00:00:00Z");
+        Instant stop = Instant.now().plusSeconds(60);
 
-        // uklanjanje iz cache
-        cacheService.evict(id);
-
-        // logički delete u Influx (kao što već imaš)
-        CreateMetricRequest deleteMarker = new CreateMetricRequest(
-                "DELETED",
-                "DELETED",
-                "DELETED",
-                null,
-                "DELETED",
-                null
+        String predicate = String.format(
+                "_measurement=\"delivery_assignments\" AND id=\"%s\"",
+                id
         );
 
-        DeliveryAssignmentMetric metric = MetricMapper.toModel(deleteMarker);
-        metric.setId(id);
+        com.influxdb.client.domain.DeletePredicateRequest deletePredicateRequest =
+                new com.influxdb.client.domain.DeletePredicateRequest();
+        deletePredicateRequest.setStart(OffsetDateTime.from(start));
+        deletePredicateRequest.setStop(OffsetDateTime.from(stop));
+        deletePredicateRequest.setPredicate(predicate);
 
-        influxDBClient.getWriteApiBlocking()
-                .writeMeasurement(bucket, org, WritePrecision.NS, metric);
+        // Ispravan poziv prima request, bucket i org
+        influxDBClient.getDeleteApi().delete(deletePredicateRequest, bucket, org);
+
+        cacheService.evict(id);
     }
 
     // helper: FluxRecord -> DTO
