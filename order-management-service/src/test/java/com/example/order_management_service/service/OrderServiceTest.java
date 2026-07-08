@@ -78,6 +78,7 @@ class OrderServiceTest {
                 "DELIVERY",
                 "Bulevar Oslobodjenja 10",
                 "res-kfc-ns-3333",
+                "cust-test-001",
                 List.of(new OrderItemRequestDto("item-zinger-v3", 2))
         );
 
@@ -87,7 +88,9 @@ class OrderServiceTest {
         verify(orderRepository).save(orderCaptor.capture());
         assertEquals("PENDING_VALIDATION", orderCaptor.getValue().getStatus());
         assertEquals("res-kfc-ns-3333", orderCaptor.getValue().getRestaurantId());
+        assertEquals("cust-test-001", orderCaptor.getValue().getCustomerId());
 
+        verify(orderRepository).linkCustomerToOrder("cust-test-001", orderId);
         verify(orderRepository).addMenuItemToOrder(orderId, "item-zinger-v3", 2);
         ArgumentCaptor<OrderMetricRequestDto> metricCaptor = ArgumentCaptor.forClass(OrderMetricRequestDto.class);
         verify(orderMetricService).create(metricCaptor.capture());
@@ -116,6 +119,7 @@ class OrderServiceTest {
                 "DELIVERY",
                 "Bulevar Oslobodjenja 10",
                 "res-kfc-ns-3333",
+                "cust-test-001",
                 List.of(
                         new OrderItemRequestDto("item-hot-wings-6kom", 2),
                         new OrderItemRequestDto("item-zinger-v3", 1)

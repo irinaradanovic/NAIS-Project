@@ -16,5 +16,7 @@ public class OrderRequestDto {
     private String orderType;
     private String address;
     private String restaurantId;
+    private String customerId;
     private List<OrderItemRequestDto> items;
 }
+

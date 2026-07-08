@@ -47,8 +47,12 @@ public class OrderService {
         order.setOrderType(dto.getOrderType());
         order.setAddress(dto.getAddress());
         order.setRestaurantId(dto.getRestaurantId());
+        order.setCustomerId(blankToNull(dto.getCustomerId()));
 
         Order saved = orderRepository.save(order);
+        if (saved.getCustomerId() != null) {
+            orderRepository.linkCustomerToOrder(saved.getCustomerId(), saved.getId());
+        }
         orderSagaEventService.log(saved, "ORDER_CREATED_PENDING", PENDING_VALIDATION, "Order created and waiting for restaurant validation", dto.getItems().size());
         orderMetricService.create(new OrderMetricRequestDto(
                 saved.getId().toString(),
@@ -123,8 +127,13 @@ public class OrderService {
         if (dto.getStatus() != null) existing.setStatus(dto.getStatus());
         if (dto.getOrderType() != null) existing.setOrderType(dto.getOrderType());
         if (dto.getAddress() != null) existing.setAddress(dto.getAddress());
+        if (dto.getRestaurantId() != null) existing.setRestaurantId(dto.getRestaurantId());
+        if (dto.getCustomerId() != null) existing.setCustomerId(blankToNull(dto.getCustomerId()));
 
         Order saved = orderRepository.save(existing);
+        if (saved.getCustomerId() != null) {
+            orderRepository.linkCustomerToOrder(saved.getCustomerId(), saved.getId());
+        }
         return mapToDTO(saved);
     }
 
@@ -157,7 +166,33 @@ public class OrderService {
         return invoiceRepository.findByOrderId(orderId);
     }
 
+    public List<OrderRepository.CustomerRevenueSummary> getCustomerRevenueSummary(LocalDateTime from, LocalDateTime to, Long minOrders) {
+        return orderRepository.findCustomerRevenueSummary(from, to, defaultLong(minOrders, 1L));
+    }
 
+    public List<OrderRepository.ArticleRevenueByStatus> getArticleRevenueByStatus(String status, LocalDateTime from, LocalDateTime to, Long minQuantity) {
+        return orderRepository.findArticleRevenueByStatus(status, from, to, defaultLong(minQuantity, 1L));
+    }
+
+    public List<OrderRepository.StatusRevenueSummary> getStatusRevenueSummary(LocalDateTime from, LocalDateTime to, Long minOrders) {
+        return orderRepository.findStatusRevenueSummary(from, to, defaultLong(minOrders, 1L));
+    }
+
+    public List<OrderRepository.ArticleQuantityUpdateResult> increaseArticleQuantityIfExists(UUID orderId, UUID articleId, Integer increment) {
+        return orderRepository.increaseArticleQuantityIfExists(orderId, articleId, increment == null ? 1 : increment);
+    }
+
+    public List<OrderRepository.CustomerLoyaltyUpdateResult> recalculateCustomerLoyaltyTier(String customerId, LocalDateTime from, LocalDateTime to) {
+        return orderRepository.recalculateCustomerLoyaltyTier(customerId, from, to);
+    }
+
+    public List<OrderRepository.RecommendedArticle> getRecommendedArticlesForCustomer(String customerId, LocalDateTime from, LocalDateTime to, Long minSharedPurchases) {
+        return orderRepository.findRecommendedArticlesForCustomer(customerId, from, to, defaultLong(minSharedPurchases, 1L));
+    }
+
+    public List<OrderRepository.InvoiceMismatch> getInvoiceMismatchOrders(LocalDateTime from, LocalDateTime to, Double tolerance) {
+        return orderRepository.findInvoiceMismatchOrders(from, to, tolerance == null ? 0.0 : tolerance);
+    }
 
     private Order getEntityById(UUID id) {
         return orderRepository.findById(id)
@@ -171,7 +206,8 @@ public class OrderService {
                 order.getStatus(),
                 order.getOrderType(),
                 order.getAddress(),
-                order.getRestaurantId()
+                order.getRestaurantId(),
+                order.getCustomerId()
         );
     }
 
@@ -208,5 +244,13 @@ public class OrderService {
         }
         String[] parts = address.split(",");
         return parts.length > 1 ? parts[parts.length - 1].trim() : "UNKNOWN";
+    }
+
+    private String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value;
+    }
+
+    private Long defaultLong(Long value, Long defaultValue) {
+        return value == null ? defaultValue : value;
     }
 }

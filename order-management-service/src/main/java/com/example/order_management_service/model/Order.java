@@ -26,6 +26,7 @@ public class Order {
     private String orderType;
     private String address;
     private String restaurantId;
+    private String customerId;
 
     @Relationship(type = "HAS_ARTICLE")
     private List<OrderArticle> articles = new ArrayList<>();

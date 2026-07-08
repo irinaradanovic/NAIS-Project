@@ -1,43 +1,87 @@
-CREATE (a1:Article { id: randomUUID(), name: 'Pizza Margherita', price: 900.0, isAvailable: true })
-CREATE (a2:Article { id: randomUUID(), name: 'Coca Cola', price: 150.0, isAvailable: true })
-CREATE (a3:Article { id: randomUUID(), name: 'Burger', price: 650.0, isAvailable: true })
-CREATE (a4:Article { id: randomUUID(), name: 'Fries', price: 250.0, isAvailable: true })
-CREATE (a5:Article { id: randomUUID(), name: 'Pasta Carbonara', price: 1200.0, isAvailable: true })
+CREATE (c1:Customer { id: 'cust-001', name: 'Ana Markovic', email: 'ana.markovic@example.com', city: 'Novi Sad', loyaltyTier: 'SILVER' })
+CREATE (c2:Customer { id: 'cust-002', name: 'Milan Petrovic', email: 'milan.petrovic@example.com', city: 'Novi Sad', loyaltyTier: 'BRONZE' })
+CREATE (c3:Customer { id: 'cust-003', name: 'Jelena Ilic', email: 'jelena.ilic@example.com', city: 'Beograd', loyaltyTier: 'SILVER' })
+CREATE (c4:Customer { id: 'cust-004', name: 'Nikola Jovanovic', email: 'nikola.jovanovic@example.com', city: 'Subotica', loyaltyTier: 'BRONZE' })
+CREATE (c5:Customer { id: 'cust-005', name: 'Sara Kovacevic', email: 'sara.kovacevic@example.com', city: 'Nis', loyaltyTier: 'GOLD' })
 
-CREATE (o1:Order {
-  id: randomUUID(),
-  creationDate: localdatetime('2026-04-01T10:00:00'),
-  status: 'CREATED',
-  orderType: 'DELIVERY',
-  address: 'Bulevar Oslobodjenja 10'
-})
-CREATE (o2:Order {
-  id: randomUUID(),
-  creationDate: localdatetime('2026-04-02T12:30:00'),
-  status: 'IN_PROGRESS',
-  orderType: 'PICKUP',
-  address: 'Trg Slobode 3'
-})
-CREATE (o3:Order {
-  id: randomUUID(),
-  creationDate: localdatetime('2026-04-03T18:15:00'),
-  status: 'COMPLETED',
-  orderType: 'DELIVERY',
-  address: 'Futoska 25'
-})
+CREATE (a1:Article { id: '11111111-1111-1111-1111-111111111111', name: 'Pizza Margherita', price: 900.0, isAvailable: true })
+CREATE (a2:Article { id: '22222222-2222-2222-2222-222222222222', name: 'Coca Cola', price: 150.0, isAvailable: true })
+CREATE (a3:Article { id: '33333333-3333-3333-3333-333333333333', name: 'Burger', price: 650.0, isAvailable: true })
+CREATE (a4:Article { id: '44444444-4444-4444-4444-444444444444', name: 'Fries', price: 250.0, isAvailable: true })
+CREATE (a5:Article { id: '55555555-5555-5555-5555-555555555555', name: 'Pasta Carbonara', price: 1200.0, isAvailable: true })
+CREATE (a6:Article { id: '66666666-6666-6666-6666-666666666666', name: 'Caesar Salad', price: 500.0, isAvailable: true })
+CREATE (a7:Article { id: '77777777-7777-7777-7777-777777777777', name: 'Sushi Set', price: 1500.0, isAvailable: true })
+CREATE (a8:Article { id: '88888888-8888-8888-8888-888888888888', name: 'Taco', price: 700.0, isAvailable: true })
+
+CREATE (o1:Order { id: 'aaaaaaaa-0000-0000-0000-000000000001', creationDate: localdatetime('2026-04-01T10:00:00'), status: 'COMPLETED', orderType: 'DELIVERY', address: 'Bulevar Oslobodjenja 10, Novi Sad', restaurantId: 'res-pizza-001', customerId: 'cust-001' })
+CREATE (o2:Order { id: 'aaaaaaaa-0000-0000-0000-000000000002', creationDate: localdatetime('2026-04-02T12:30:00'), status: 'COMPLETED', orderType: 'PICKUP', address: 'Trg Slobode 3, Novi Sad', restaurantId: 'res-pizza-001', customerId: 'cust-002' })
+CREATE (o3:Order { id: 'aaaaaaaa-0000-0000-0000-000000000003', creationDate: localdatetime('2026-04-03T18:15:00'), status: 'COMPLETED', orderType: 'DELIVERY', address: 'Knez Mihailova 8, Beograd', restaurantId: 'res-pasta-002', customerId: 'cust-003' })
+CREATE (o4:Order { id: 'aaaaaaaa-0000-0000-0000-000000000004', creationDate: localdatetime('2026-04-04T14:45:00'), status: 'CONFIRMED', orderType: 'DELIVERY', address: 'Korzo 12, Subotica', restaurantId: 'res-burger-003', customerId: 'cust-004' })
+CREATE (o5:Order { id: 'aaaaaaaa-0000-0000-0000-000000000005', creationDate: localdatetime('2026-04-05T20:00:00'), status: 'CANCELED', orderType: 'DELIVERY', address: 'Bulevar Nemanjica 20, Nis', restaurantId: 'res-sushi-004', customerId: 'cust-005' })
+CREATE (o6:Order { id: 'aaaaaaaa-0000-0000-0000-000000000006', creationDate: localdatetime('2026-04-06T11:20:00'), status: 'COMPLETED', orderType: 'DELIVERY', address: 'Futoska 25, Novi Sad', restaurantId: 'res-burger-003', customerId: 'cust-001' })
+CREATE (o7:Order { id: 'aaaaaaaa-0000-0000-0000-000000000007', creationDate: localdatetime('2026-04-07T16:10:00'), status: 'COMPLETED', orderType: 'PICKUP', address: 'Cara Dusana 2, Novi Sad', restaurantId: 'res-salad-005', customerId: 'cust-002' })
+CREATE (o8:Order { id: 'aaaaaaaa-0000-0000-0000-000000000008', creationDate: localdatetime('2026-04-08T19:30:00'), status: 'COMPLETED', orderType: 'DELIVERY', address: 'Bulevar Kralja Aleksandra 44, Beograd', restaurantId: 'res-pasta-002', customerId: 'cust-003' })
+CREATE (o9:Order { id: 'aaaaaaaa-0000-0000-0000-000000000009', creationDate: localdatetime('2026-04-09T09:50:00'), status: 'CREATED', orderType: 'DELIVERY', address: 'Zmaj Jovina 5, Novi Sad', restaurantId: 'res-taco-006', customerId: 'cust-004' })
+CREATE (o10:Order { id: 'aaaaaaaa-0000-0000-0000-000000000010', creationDate: localdatetime('2026-04-10T21:10:00'), status: 'COMPLETED', orderType: 'DELIVERY', address: 'Bulevar Nemanjica 21, Nis', restaurantId: 'res-sushi-004', customerId: 'cust-005' })
+CREATE (o11:Order { id: 'aaaaaaaa-0000-0000-0000-000000000011', creationDate: localdatetime('2026-04-11T13:25:00'), status: 'REJECTED', orderType: 'PICKUP', address: 'Trg Republike 1, Beograd', restaurantId: 'res-taco-006', customerId: 'cust-005' })
+CREATE (o12:Order { id: 'aaaaaaaa-0000-0000-0000-000000000012', creationDate: localdatetime('2026-04-12T17:40:00'), status: 'COMPLETED', orderType: 'DELIVERY', address: 'Bulevar Evrope 30, Novi Sad', restaurantId: 'res-salad-005', customerId: 'cust-002' })
+
+CREATE (c1)-[:PLACED_ORDER]->(o1)
+CREATE (c2)-[:PLACED_ORDER]->(o2)
+CREATE (c3)-[:PLACED_ORDER]->(o3)
+CREATE (c4)-[:PLACED_ORDER]->(o4)
+CREATE (c5)-[:PLACED_ORDER]->(o5)
+CREATE (c1)-[:PLACED_ORDER]->(o6)
+CREATE (c2)-[:PLACED_ORDER]->(o7)
+CREATE (c3)-[:PLACED_ORDER]->(o8)
+CREATE (c4)-[:PLACED_ORDER]->(o9)
+CREATE (c5)-[:PLACED_ORDER]->(o10)
+CREATE (c5)-[:PLACED_ORDER]->(o11)
+CREATE (c2)-[:PLACED_ORDER]->(o12)
 
 CREATE (o1)-[:HAS_ARTICLE {quantity: 2}]->(a1)
 CREATE (o1)-[:HAS_ARTICLE {quantity: 2}]->(a2)
-
-CREATE (o2)-[:HAS_ARTICLE {quantity: 1}]->(a3)
+CREATE (o2)-[:HAS_ARTICLE {quantity: 1}]->(a1)
 CREATE (o2)-[:HAS_ARTICLE {quantity: 1}]->(a4)
-
+CREATE (o3)-[:HAS_ARTICLE {quantity: 3}]->(a2)
 CREATE (o3)-[:HAS_ARTICLE {quantity: 1}]->(a5)
+CREATE (o4)-[:HAS_ARTICLE {quantity: 1}]->(a3)
+CREATE (o4)-[:HAS_ARTICLE {quantity: 1}]->(a4)
+CREATE (o5)-[:HAS_ARTICLE {quantity: 1}]->(a7)
+CREATE (o6)-[:HAS_ARTICLE {quantity: 2}]->(a3)
+CREATE (o7)-[:HAS_ARTICLE {quantity: 2}]->(a6)
+CREATE (o8)-[:HAS_ARTICLE {quantity: 1}]->(a4)
+CREATE (o8)-[:HAS_ARTICLE {quantity: 1}]->(a5)
+CREATE (o9)-[:HAS_ARTICLE {quantity: 1}]->(a8)
+CREATE (o9)-[:HAS_ARTICLE {quantity: 1}]->(a2)
+CREATE (o10)-[:HAS_ARTICLE {quantity: 1}]->(a1)
+CREATE (o10)-[:HAS_ARTICLE {quantity: 1}]->(a7)
+CREATE (o11)-[:HAS_ARTICLE {quantity: 2}]->(a8)
+CREATE (o12)-[:HAS_ARTICLE {quantity: 2}]->(a4)
+CREATE (o12)-[:HAS_ARTICLE {quantity: 1}]->(a6)
 
-CREATE (i1:Invoice { id: randomUUID(), price: 2100.0, issueDate: date('2026-04-01') })
-CREATE (i2:Invoice { id: randomUUID(), price: 900.0,  issueDate: date('2026-04-02') })
-CREATE (i3:Invoice { id: randomUUID(), price: 1200.0, issueDate: date('2026-04-03') })
+CREATE (i1:Invoice { id: 'bbbbbbbb-0000-0000-0000-000000000001', price: 2100.0, issueDate: date('2026-04-01') })
+CREATE (i2:Invoice { id: 'bbbbbbbb-0000-0000-0000-000000000002', price: 1150.0, issueDate: date('2026-04-02') })
+CREATE (i3:Invoice { id: 'bbbbbbbb-0000-0000-0000-000000000003', price: 1650.0, issueDate: date('2026-04-03') })
+CREATE (i4:Invoice { id: 'bbbbbbbb-0000-0000-0000-000000000004', price: 1000.0, issueDate: date('2026-04-04') })
+CREATE (i5:Invoice { id: 'bbbbbbbb-0000-0000-0000-000000000005', price: 1500.0, issueDate: date('2026-04-05') })
+CREATE (i6:Invoice { id: 'bbbbbbbb-0000-0000-0000-000000000006', price: 1300.0, issueDate: date('2026-04-06') })
+CREATE (i7:Invoice { id: 'bbbbbbbb-0000-0000-0000-000000000007', price: 1000.0, issueDate: date('2026-04-07') })
+CREATE (i8:Invoice { id: 'bbbbbbbb-0000-0000-0000-000000000008', price: 1450.0, issueDate: date('2026-04-08') })
+CREATE (i9:Invoice { id: 'bbbbbbbb-0000-0000-0000-000000000009', price: 850.0, issueDate: date('2026-04-09') })
+CREATE (i10:Invoice { id: 'bbbbbbbb-0000-0000-0000-000000000010', price: 2400.0, issueDate: date('2026-04-10') })
+CREATE (i11:Invoice { id: 'bbbbbbbb-0000-0000-0000-000000000011', price: 1400.0, issueDate: date('2026-04-11') })
+CREATE (i12:Invoice { id: 'bbbbbbbb-0000-0000-0000-000000000012', price: 1000.0, issueDate: date('2026-04-12') })
 
 CREATE (o1)-[:HAS_INVOICE]->(i1)
 CREATE (o2)-[:HAS_INVOICE]->(i2)
 CREATE (o3)-[:HAS_INVOICE]->(i3)
+CREATE (o4)-[:HAS_INVOICE]->(i4)
+CREATE (o5)-[:HAS_INVOICE]->(i5)
+CREATE (o6)-[:HAS_INVOICE]->(i6)
+CREATE (o7)-[:HAS_INVOICE]->(i7)
+CREATE (o8)-[:HAS_INVOICE]->(i8)
+CREATE (o9)-[:HAS_INVOICE]->(i9)
+CREATE (o10)-[:HAS_INVOICE]->(i10)
+CREATE (o11)-[:HAS_INVOICE]->(i11)
+CREATE (o12)-[:HAS_INVOICE]->(i12)
