@@ -15,7 +15,7 @@ import rs.ac.uns.acs.nais.MockDeliveryService.model.DeliveryAssignmentMetric;
 import com.influxdb.client.DeleteApi;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -69,6 +69,7 @@ public class DeliveryMetricService {
             from(bucket: "%s")
               |> range(start: -365d)
               |> filter(fn: (r) => r["_measurement"] == "delivery_assignments")
+              |> filter(fn: (r) => r["_field"] == "deliveryMinutes") // Dodat filter za field
               |> filter(fn: (r) => r["id"] == "%s")
               |> last()
             """, bucket, id);
@@ -94,12 +95,13 @@ public class DeliveryMetricService {
     public List<MetricResponse> getAll(int limit) {
 
         String flux = String.format("""
-                from(bucket: "%s")
-                  |> range(start: -365d)
-                  |> filter(fn: (r) => r["_measurement"] == "delivery_assignments")
-                  |> sort(columns: ["_time"], desc: true)
-                  |> limit(n: %d)
-                """, bucket, limit);
+            from(bucket: "%s")
+              |> range(start: -365d)
+              |> filter(fn: (r) => r["_measurement"] == "delivery_assignments")
+              |> filter(fn: (r) => r["_field"] == "deliveryMinutes") // Dodat filter za field
+              |> sort(columns: ["_time"], desc: true)
+              |> limit(n: %d)
+            """, bucket, limit);
 
         QueryApi queryApi = influxDBClient.getQueryApi();
         List<FluxTable> tables = queryApi.query(flux, org);
@@ -119,6 +121,7 @@ public class DeliveryMetricService {
         Instant start = Instant.parse("1970-01-01T00:00:00Z");
         Instant stop = Instant.now().plusSeconds(60);
 
+        // POPRAVKA: Izbačeni razmaci oko '=' i oko 'AND'
         String predicate = String.format(
                 "_measurement=\"delivery_assignments\" AND id=\"%s\"",
                 id
@@ -126,11 +129,10 @@ public class DeliveryMetricService {
 
         com.influxdb.client.domain.DeletePredicateRequest deletePredicateRequest =
                 new com.influxdb.client.domain.DeletePredicateRequest();
-        deletePredicateRequest.setStart(OffsetDateTime.from(start));
-        deletePredicateRequest.setStop(OffsetDateTime.from(stop));
+        deletePredicateRequest.setStart(start.atOffset(ZoneOffset.UTC));
+        deletePredicateRequest.setStop(stop.atOffset(ZoneOffset.UTC));
         deletePredicateRequest.setPredicate(predicate);
 
-        // Ispravan poziv prima request, bucket i org
         influxDBClient.getDeleteApi().delete(deletePredicateRequest, bucket, org);
 
         cacheService.evict(id);
@@ -138,7 +140,6 @@ public class DeliveryMetricService {
 
     // helper: FluxRecord -> DTO
     private MetricResponse mapRecord(FluxRecord record) {
-
         return new MetricResponse(
                 record.getValueByKey("id") != null ? record.getValueByKey("id").toString() : null,
                 record.getValueByKey("narudzbinaId") != null ? record.getValueByKey("narudzbinaId").toString() : null,
@@ -146,9 +147,10 @@ public class DeliveryMetricService {
                 record.getValueByKey("zona") != null ? record.getValueByKey("zona").toString() : null,
                 record.getValueByKey("dostavljacId") != null ? record.getValueByKey("dostavljacId").toString() : null,
                 record.getValueByKey("status") != null ? record.getValueByKey("status").toString() : null,
-                record.getValueByKey("deliveryMinutes") != null
-                        ? Double.valueOf(record.getValueByKey("deliveryMinutes").toString())
-                        : null,
+
+                // POPRAVKA: Vrednost field-a se čita iz "_value" kolone!
+                record.getValue() != null ? ((Number) record.getValue()).doubleValue() : null,
+
                 record.getTime()
         );
     }

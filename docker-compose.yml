@@ -98,6 +98,7 @@ services:
       SPRING_INFLUX_TOKEN: my-super-secret-auth-token
       SPRING_INFLUX_ORG: nais_org
       SPRING_INFLUX_BUCKET: delivery_bucket
+      SPRING_DATA_REDIS_HOST: redis
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
